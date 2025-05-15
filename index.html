@@ -1,0 +1,2621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dukan Hisab Kitab</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50; 
+            --secondary-color: #FFC107; 
+            --accent-color: #03A9F4; 
+            --background-color: #f4f6f8;
+            --text-color: #333;
+            --card-background: #fff;
+            --border-color: #ddd;
+            --danger-color: #f44336;
+            --success-color: #4CAF50;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #sidebar {
+            width: 250px;
+            background-color: #37474F; 
+            color: #ECEFF1; 
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        #sidebar h1 {
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            color: var(--secondary-color);
+        }
+        #sidebar nav ul { list-style: none; }
+        #sidebar nav ul li a {
+            display: block;
+            padding: 12px 20px;
+            color: #CFD8DC; 
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+            border-left: 3px solid transparent;
+        }
+        #sidebar nav ul li a:hover, #sidebar nav ul li a.active {
+            background-color: #455A64; 
+            color: #FFF;
+            border-left-color: var(--secondary-color);
+        }
+        #main-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .content-header h2 { color: var(--primary-color); }
+        .content-header .btn-primary { background-color: var(--primary-color); }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .summary-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+        .summary-card p {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .summary-card.income p { color: var(--success-color); }
+        .summary-card.expense p { color: var(--danger-color); }
+        .summary-card.balance p { color: var(--accent-color); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: var(--card-background);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+        th {
+            background-color: #E8EAF6; 
+            color: #3F51B5; 
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f1f1; }
+        .actions-cell button { margin-right: 5px; }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+            color: white;
+            text-decoration: none;
+        }
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-primary:hover { background-color: #388E3C; }
+        .btn-secondary { background-color: var(--secondary-color); color: #333; }
+        .btn-secondary:hover { background-color: #FFB300; }
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-danger:hover { background-color: #D32F2F; }
+        .btn-info { background-color: var(--accent-color); }
+        .btn-info:hover { background-color: #0288D1; }
+        .btn-sm { padding: 6px 10px; font-size: 0.8em; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: var(--card-background);
+            margin: 10% auto;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-header h3 { color: var(--primary-color); font-size: 1.5em; }
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover, .close-btn:focus { color: var(--text-color); }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-actions { margin-top: 20px; text-align: right; }
+
+        #items-table-container { max-height: 200px; overflow-y: auto; margin-bottom: 10px; }
+        #items-table-container table td { padding: 8px; }
+        #items-table-container table input { width: 70px; }
+
+        .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 1em;
+            color: var(--text-color);
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: bold;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row; 
+                overflow-x: auto; 
+                padding: 0;
+            }
+            #sidebar h1 { display: none; } 
+            #sidebar nav { width: 100%; }
+            #sidebar nav ul { display: flex; flex-direction: row; }
+            #sidebar nav ul li a { padding: 15px; border-left: none; border-bottom: 3px solid transparent; }
+            #sidebar nav ul li a:hover, #sidebar nav ul li a.active { border-bottom-color: var(--secondary-color); border-left: none; }
+
+            .modal-content { width: 95%; margin: 5% auto; }
+            .content-header { flex-direction: column; align-items: flex-start; }
+            .content-header .btn { margin-top: 10px; }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <h1>Dukan Hisab Kitab</h1>
+        <nav>
+            <ul>
+                <li><a href="#" class="nav-link active" data-page="dashboard">Dashboard</a></li>
+                <li><a href="#" class="nav-link" data-page="sales">Sales</a></li>
+                <li><a href="#" class="nav-link" data-page="purchases">Purchases</a></li>
+                <li><a href="#" class="nav-link" data-page="otherIncomes">Other Incomes</a></li>
+                <li><a href="#" class="nav-link" data-page="expenses">Expenses</a></li>
+                <li><a href="#" class="nav-link" data-page="products">Products</a></li>
+                <li><a href="#" class="nav-link" data-page="customers">Customers</a></li>
+                <li><a href="#" class="nav-link" data-page="suppliers">Suppliers</a></li>
+                <li><a href="#" class="nav-link" data-page="reports">Reports</a></li>
+                <li><a href="#" class="nav-link" data-page="settings">Settings</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main id="main-content">
+    </main>
+
+    <div id="modal-container"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const DB_NAME = 'DukanHisabKitabDB';
+        const DB_VERSION = 2; 
+        let db;
+
+        const STORE_PRODUCTS = 'products';
+        const STORE_CUSTOMERS = 'customers';
+        const STORE_SUPPLIERS = 'suppliers';
+        const STORE_SALES = 'sales';
+        const STORE_PURCHASES = 'purchases';
+        const STORE_EXPENSES = 'expenses';
+        const STORE_OTHER_INCOMES = 'otherIncomes';
+        const STORE_PAYMENTS = 'payments';
+        const STORE_SETTINGS = 'settings';
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = event => {
+                    const db_upg = event.target.result;
+                    if (!db_upg.objectStoreNames.contains(STORE_PRODUCTS)) {
+                        const productStore = db_upg.createObjectStore(STORE_PRODUCTS, { keyPath: 'id', autoIncrement: true });
+                        productStore.createIndex('name', 'name', { unique: true });
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_CUSTOMERS)) {
+                        const customerStore = db_upg.createObjectStore(STORE_CUSTOMERS, { keyPath: 'id', autoIncrement: true });
+                        customerStore.createIndex('name', 'name');
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_SUPPLIERS)) {
+                        const supplierStore = db_upg.createObjectStore(STORE_SUPPLIERS, { keyPath: 'id', autoIncrement: true });
+                        supplierStore.createIndex('name', 'name');
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_SALES)) {
+                        const salesStore = db_upg.createObjectStore(STORE_SALES, { keyPath: 'id', autoIncrement: true });
+                        salesStore.createIndex('date', 'date');
+                        salesStore.createIndex('customerId', 'customerId');
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_PURCHASES)) {
+                        const purchasesStore = db_upg.createObjectStore(STORE_PURCHASES, { keyPath: 'id', autoIncrement: true });
+                        purchasesStore.createIndex('date', 'date');
+                        purchasesStore.createIndex('supplierId', 'supplierId');
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_EXPENSES)) {
+                        const expensesStore = db_upg.createObjectStore(STORE_EXPENSES, { keyPath: 'id', autoIncrement: true });
+                        expensesStore.createIndex('date', 'date');
+                        expensesStore.createIndex('category', 'category');
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_OTHER_INCOMES)) { 
+                        const otherIncomesStore = db_upg.createObjectStore(STORE_OTHER_INCOMES, { keyPath: 'id', autoIncrement: true });
+                        otherIncomesStore.createIndex('date', 'date');
+                        otherIncomesStore.createIndex('source', 'source');
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_PAYMENTS)) {
+                        const paymentsStore = db_upg.createObjectStore(STORE_PAYMENTS, { keyPath: 'id', autoIncrement: true });
+                        paymentsStore.createIndex('date', 'date');
+                        paymentsStore.createIndex('type', 'type');
+                        paymentsStore.createIndex('relatedId', 'relatedId');
+                    }
+                    if (!db_upg.objectStoreNames.contains(STORE_SETTINGS)) {
+                        db_upg.createObjectStore(STORE_SETTINGS, { keyPath: 'key' });
+                    }
+                };
+
+                request.onsuccess = event => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+
+                request.onerror = event => {
+                    console.error('Database error:', event.target.errorCode);
+                    reject(event.target.errorCode);
+                };
+            });
+        }
+
+        function addItem(storeName, item) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(storeName, 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.add(item);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function getItem(storeName, key) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("DB not initialized"); return; }
+                const transaction = db.transaction(storeName, 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.get(key);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function getAllItems(storeName) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("DB not initialized"); return; }
+                const transaction = db.transaction(storeName, 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+        
+        function getAllItemsByIndex(storeName, indexName, query) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("DB not initialized"); return; }
+                const transaction = db.transaction(storeName, 'readonly');
+                const store = transaction.objectStore(storeName);
+                const index = store.index(indexName);
+                const request = index.getAll(query);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+
+        function updateItem(storeName, item) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(storeName, 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.put(item);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function deleteItem(storeName, key) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(storeName, 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.delete(key);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+        
+        async function clearStore(storeName) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(storeName, 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.clear();
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        const mainContent = document.getElementById('main-content');
+        const modalContainer = document.getElementById('modal-container');
+        let currentOpenModal = null;
+
+        function showModal(id, title, contentHtml, onSave, formId) {
+            const modalHTML = `
+                <div id="${id}" class="modal" style="display:block;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>${title}</h3>
+                            <span class="close-btn" data-modal-id="${id}">&times;</span>
+                        </div>
+                        ${contentHtml}
+                    </div>
+                </div>
+            `;
+            modalContainer.innerHTML = modalHTML;
+            currentOpenModal = document.getElementById(id);
+            
+            currentOpenModal.querySelector('.close-btn').onclick = () => closeModal(id);
+            
+            if (onSave && formId) {
+                const form = currentOpenModal.querySelector(`#${formId}`);
+                if (form) {
+                    form.onsubmit = async (e) => {
+                        e.preventDefault();
+                        await onSave(new FormData(form));
+                        closeModal(id);
+                    };
+                }
+            }
+             window.onclick = function(event) {
+                if (event.target == currentOpenModal) {
+                    closeModal(id);
+                }
+            }
+        }
+
+        function closeModal(id) {
+            if (currentOpenModal && currentOpenModal.id === id) {
+                currentOpenModal.style.display = 'none';
+                modalContainer.innerHTML = '';
+                currentOpenModal = null;
+            }
+        }
+
+        function getTodayDate() {
+            return new Date().toISOString().slice(0, 10);
+        }
+        
+        function renderTable(tableId, data, headers, rowMapper, actions = []) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            table.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}${actions.length > 0 ? '<th>Actions</th>' : ''}</tr></thead><tbody></tbody>`;
+            const tbody = table.querySelector('tbody');
+            data.forEach(item => {
+                const row = tbody.insertRow();
+                rowMapper(item).forEach(text => {
+                    const cell = row.insertCell();
+                    cell.textContent = text;
+                });
+                if (actions.length > 0) {
+                    const actionsCell = row.insertCell();
+                    actionsCell.className = 'actions-cell';
+                    actions.forEach(action => {
+                        const button = document.createElement('button');
+                        button.className = `btn btn-sm ${action.class}`;
+                        button.textContent = action.label;
+                        button.onclick = () => action.handler(item);
+                        actionsCell.appendChild(button);
+                    });
+                }
+            });
+        }
+        
+        async function renderDashboard() {
+            const today = getTodayDate();
+            const sales = await getAllItems(STORE_SALES);
+            const expenses = await getAllItems(STORE_EXPENSES);
+            const otherIncomes = await getAllItems(STORE_OTHER_INCOMES);
+            const products = await getAllItems(STORE_PRODUCTS);
+            const customers = await getAllItems(STORE_CUSTOMERS);
+            const suppliers = await getAllItems(STORE_SUPPLIERS);
+
+            const todayCashFromSales = sales.filter(s => s.date === today).reduce((sum, s) => sum + s.amountPaid, 0);
+            const todayCashFromOtherIncomes = otherIncomes.filter(oi => oi.date === today).reduce((sum, oi) => sum + oi.amount, 0);
+            const todayTotalCashInflow = todayCashFromSales + todayCashFromOtherIncomes;
+            const todayExpensesPaid = expenses.filter(e => e.date === today).reduce((sum, e) => sum + e.amount, 0);
+            
+            const totalStockValue = products.reduce((sum, p) => sum + (p.stock * p.purchasePrice), 0);
+            const totalReceivables = customers.reduce((sum, c) => sum + (c.currentBalance > 0 ? c.currentBalance : 0), 0);
+            const totalPayables = suppliers.reduce((sum, s) => sum + (s.currentBalance > 0 ? s.currentBalance : 0), 0);
+
+            const totalSalesRevenue = sales.reduce((sum, s) => sum + s.grandTotal, 0);
+            const totalOtherRevenue = otherIncomes.reduce((sum, oi) => sum + oi.amount, 0);
+            const totalRevenue = totalSalesRevenue + totalOtherRevenue;
+            
+            let totalCOGS = 0;
+             for (const sale of sales) {
+                for (const item of sale.items) {
+                    const product = await getItem(STORE_PRODUCTS, item.productId);
+                    totalCOGS += item.quantity * (product?.purchasePrice || 0);
+                }
+            }
+            const totalExpenseAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
+            const overallProfit = totalRevenue - totalCOGS - totalExpenseAmount;
+
+            mainContent.innerHTML = `
+                <div class="content-header"><h2>Dashboard</h2></div>
+                <div class="dashboard-grid">
+                    <div class="summary-card income">
+                        <h3>Today's Total Cash Inflow</h3>
+                        <p>Rs. ${todayTotalCashInflow.toFixed(2)}</p>
+                    </div>
+                     <div class="summary-card income">
+                        <h3>Today's Cash from Sales</h3>
+                        <p>Rs. ${todayCashFromSales.toFixed(2)}</p>
+                    </div>
+                     <div class="summary-card income">
+                        <h3>Today's Cash from Other Incomes</h3>
+                        <p>Rs. ${todayCashFromOtherIncomes.toFixed(2)}</p>
+                    </div>
+                    <div class="summary-card expense">
+                        <h3>Today's Expenses Paid</h3>
+                        <p>Rs. ${todayExpensesPaid.toFixed(2)}</p>
+                    </div>
+                     <div class="summary-card">
+                        <h3>Total Stock Value (Purchase Price)</h3>
+                        <p>Rs. ${totalStockValue.toFixed(2)}</p>
+                    </div>
+                    <div class="summary-card balance">
+                        <h3>Total Receivables</h3>
+                        <p>Rs. ${totalReceivables.toFixed(2)}</p>
+                    </div>
+                    <div class="summary-card balance">
+                        <h3>Total Payables</h3>
+                        <p>Rs. ${totalPayables.toFixed(2)}</p>
+                    </div>
+                    <div class="summary-card ${overallProfit >= 0 ? 'income' : 'expense'}">
+                        <h3>Overall Profit/Loss (Accrual)</h3>
+                        <p>Rs. ${overallProfit.toFixed(2)}</p>
+                    </div>
+                </div>
+                <h3>Recent Activity (Last 5)</h3>
+                <h4>Sales</h4>
+                <table id="recent-sales-table"></table>
+                <h4>Other Incomes</h4>
+                <table id="recent-other-incomes-table"></table>
+                <h4>Expenses</h4>
+                <table id="recent-expenses-table"></table>
+            `;
+            
+            const recentSales = sales.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
+            renderTable('recent-sales-table', recentSales, ['ID', 'Date', 'Customer', 'Total'], 
+                (sale) => [sale.id, sale.date, sale.customerName || 'N/A', `Rs. ${sale.grandTotal.toFixed(2)}`]);
+
+            const recentOtherIncomes = otherIncomes.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
+            renderTable('recent-other-incomes-table', recentOtherIncomes, ['ID', 'Date', 'Source', 'Amount'],
+                (income) => [income.id, income.date, income.source, `Rs. ${income.amount.toFixed(2)}`]);
+            
+            const recentExpenses = expenses.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
+            renderTable('recent-expenses-table', recentExpenses, ['ID', 'Date', 'Category', 'Amount'],
+                (expense) => [expense.id, expense.date, expense.category, `Rs. ${expense.amount.toFixed(2)}`]);
+        }
+        
+        async function renderProductsPage() {
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2>Products</h2>
+                    <button class="btn btn-primary" id="addProductBtn">Add New Product</button>
+                </div>
+                <table id="productsTable"></table>
+            `;
+            document.getElementById('addProductBtn').onclick = () => showProductForm();
+            await loadProductsTable();
+        }
+
+        async function loadProductsTable() {
+            const products = await getAllItems(STORE_PRODUCTS);
+            renderTable('productsTable', products, 
+                ['ID', 'Name', 'Stock', 'Purchase Price', 'Sale Price', 'Unit'],
+                (p) => [p.id, p.name, p.stock, `Rs. ${p.purchasePrice.toFixed(2)}`, `Rs. ${p.salePrice.toFixed(2)}`, p.unit || 'N/A'],
+                [
+                    { label: 'Edit', class: 'btn-secondary', handler: (p) => showProductForm(p) },
+                    { label: 'Delete', class: 'btn-danger', handler: deleteProduct }
+                ]
+            );
+        }
+        
+        function showProductForm(product = null) {
+            const formId = 'productForm';
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="id" value="${product?.id || ''}">
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" name="name" value="${product?.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <textarea id="productDescription" name="description">${product?.description || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPurchasePrice">Purchase Price</label>
+                        <input type="number" id="productPurchasePrice" name="purchasePrice" value="${product?.purchasePrice || 0}" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productSalePrice">Sale Price</label>
+                        <input type="number" id="productSalePrice" name="salePrice" value="${product?.salePrice || 0}" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Initial Stock</label>
+                        <input type="number" id="productStock" name="stock" value="${product?.stock || 0}" ${product ? 'readonly title="Stock updated via purchases/sales"' : ''} required>
+                    </div>
+                     <div class="form-group">
+                        <label for="productUnit">Unit (e.g., kg, pcs, ltr)</label>
+                        <input type="text" id="productUnit" name="unit" value="${product?.unit || 'pcs'}">
+                    </div>
+                    <div class="form-group">
+                        <label for="productMinStock">Minimum Stock Level</label>
+                        <input type="number" id="productMinStock" name="minStockLevel" value="${product?.minStockLevel || 0}">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${product ? 'Update' : 'Save'} Product</button>
+                    </div>
+                </form>
+            `;
+            showModal('productModal', product ? 'Edit Product' : 'Add Product', contentHtml, saveProduct, formId);
+        }
+
+        async function saveProduct(formData) {
+            const product = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                purchasePrice: parseFloat(formData.get('purchasePrice')),
+                salePrice: parseFloat(formData.get('salePrice')),
+                stock: parseInt(formData.get('stock')),
+                unit: formData.get('unit'),
+                minStockLevel: parseInt(formData.get('minStockLevel'))
+            };
+            const id = formData.get('id');
+            try {
+                if (id) {
+                    product.id = parseInt(id);
+                    const existingProduct = await getItem(STORE_PRODUCTS, product.id);
+                    product.stock = existingProduct.stock; 
+                    if (formData.has('stock') && !document.getElementById('productStock').readOnly) { 
+                         product.stock = parseInt(formData.get('stock'));
+                    }
+                    await updateItem(STORE_PRODUCTS, product);
+                } else {
+                    await addItem(STORE_PRODUCTS, product);
+                }
+                await loadProductsTable();
+                await renderDashboard(); 
+            } catch (error) {
+                console.error('Error saving product:', error);
+                alert(`Error: ${error.message || 'Could not save product. Name might be duplicate.'}`);
+            }
+        }
+
+        async function deleteProduct(product) {
+            if (confirm(`Are you sure you want to delete ${product.name}? This action cannot be undone.`)) {
+                try {
+                    await deleteItem(STORE_PRODUCTS, product.id);
+                    await loadProductsTable();
+                    await renderDashboard();
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    alert('Error deleting product.');
+                }
+            }
+        }
+        
+        async function renderCustomersPage() {
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2>Customers</h2>
+                    <button class="btn btn-primary" id="addCustomerBtn">Add New Customer</button>
+                </div>
+                <table id="customersTable"></table>
+            `;
+            document.getElementById('addCustomerBtn').onclick = () => showCustomerForm();
+            await loadCustomersTable();
+        }
+
+        async function loadCustomersTable() {
+            const customers = await getAllItems(STORE_CUSTOMERS);
+            renderTable('customersTable', customers,
+                ['ID', 'Name', 'Phone', 'Email', 'Current Balance'],
+                (c) => [c.id, c.name, c.phone || 'N/A', c.email || 'N/A', `Rs. ${(c.currentBalance || 0).toFixed(2)}`],
+                [
+                    { label: 'Edit', class: 'btn-secondary', handler: (c) => showCustomerForm(c) },
+                    { label: 'Delete', class: 'btn-danger', handler: deleteCustomer },
+                    { label: 'Khata', class: 'btn-info', handler: (c) => renderCustomerKhata(c.id) },
+                    { label: 'Add Payment', class: 'btn-success', handler: (c) => showPaymentForm('customer', c.id, c.name) }
+                ]
+            );
+        }
+
+        function showCustomerForm(customer = null) {
+            const formId = 'customerForm';
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="id" value="${customer?.id || ''}">
+                    <div class="form-group">
+                        <label for="customerName">Name</label>
+                        <input type="text" id="customerName" name="name" value="${customer?.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone</label>
+                        <input type="tel" id="customerPhone" name="phone" value="${customer?.phone || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail">Email</label>
+                        <input type="email" id="customerEmail" name="email" value="${customer?.email || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Address</label>
+                        <textarea id="customerAddress" name="address">${customer?.address || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerOpeningBalance">Opening Balance (Customer Owes You +)</label>
+                        <input type="number" id="customerOpeningBalance" name="openingBalance" value="${customer?.openingBalance || 0}" step="0.01" ${customer ? 'readonly title="Cannot change opening balance after creation"' : ''}>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${customer ? 'Update' : 'Save'} Customer</button>
+                    </div>
+                </form>
+            `;
+            showModal('customerModal', customer ? 'Edit Customer' : 'Add Customer', contentHtml, saveCustomer, formId);
+        }
+
+        async function saveCustomer(formData) {
+            const customerData = {
+                name: formData.get('name'),
+                phone: formData.get('phone'),
+                email: formData.get('email'),
+                address: formData.get('address'),
+            };
+            const id = formData.get('id');
+            try {
+                if (id) {
+                    customerData.id = parseInt(id);
+                    const existingCustomer = await getItem(STORE_CUSTOMERS, customerData.id);
+                    customerData.openingBalance = existingCustomer.openingBalance; 
+                    customerData.currentBalance = existingCustomer.currentBalance; 
+                    await updateItem(STORE_CUSTOMERS, customerData);
+                } else {
+                    customerData.openingBalance = parseFloat(formData.get('openingBalance')) || 0;
+                    customerData.currentBalance = customerData.openingBalance;
+                    await addItem(STORE_CUSTOMERS, customerData);
+                }
+                await loadCustomersTable();
+                await renderDashboard();
+            } catch (error) {
+                console.error('Error saving customer:', error);
+                alert('Error saving customer.');
+            }
+        }
+
+        async function deleteCustomer(customer) {
+            if (confirm(`Are you sure you want to delete ${customer.name}? This will also affect related sales records and balances.`)) {
+                try {
+                    await deleteItem(STORE_CUSTOMERS, customer.id);
+                    await loadCustomersTable();
+                    await renderDashboard();
+                } catch (error) {
+                    console.error('Error deleting customer:', error);
+                    alert('Error deleting customer.');
+                }
+            }
+        }
+        
+        async function renderSuppliersPage() {
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2>Suppliers</h2>
+                    <button class="btn btn-primary" id="addSupplierBtn">Add New Supplier</button>
+                </div>
+                <table id="suppliersTable"></table>
+            `;
+            document.getElementById('addSupplierBtn').onclick = () => showSupplierForm();
+            await loadSuppliersTable();
+        }
+
+        async function loadSuppliersTable() {
+            const suppliers = await getAllItems(STORE_SUPPLIERS);
+            renderTable('suppliersTable', suppliers,
+                ['ID', 'Name', 'Phone', 'Email', 'Current Balance (We Owe)'],
+                (s) => [s.id, s.name, s.phone || 'N/A', s.email || 'N/A', `Rs. ${(s.currentBalance || 0).toFixed(2)}`],
+                [
+                    { label: 'Edit', class: 'btn-secondary', handler: (s) => showSupplierForm(s) },
+                    { label: 'Delete', class: 'btn-danger', handler: deleteSupplier },
+                    { label: 'Khata', class: 'btn-info', handler: (s) => renderSupplierKhata(s.id) },
+                    { label: 'Add Payment', class: 'btn-success', handler: (s) => showPaymentForm('supplier', s.id, s.name) }
+                ]
+            );
+        }
+
+        function showSupplierForm(supplier = null) {
+            const formId = 'supplierForm';
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="id" value="${supplier?.id || ''}">
+                    <div class="form-group">
+                        <label for="supplierName">Name</label>
+                        <input type="text" id="supplierName" name="name" value="${supplier?.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierPhone">Phone</label>
+                        <input type="tel" id="supplierPhone" name="phone" value="${supplier?.phone || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierEmail">Email</label>
+                        <input type="email" id="supplierEmail" name="email" value="${supplier?.email || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierAddress">Address</label>
+                        <textarea id="supplierAddress" name="address">${supplier?.address || ''}</textarea>
+                    </div>
+                     <div class="form-group">
+                        <label for="supplierOpeningBalance">Opening Balance (We Owe Supplier +)</label>
+                        <input type="number" id="supplierOpeningBalance" name="openingBalance" value="${supplier?.openingBalance || 0}" step="0.01" ${supplier ? 'readonly title="Cannot change opening balance after creation"' : ''}>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${supplier ? 'Update' : 'Save'} Supplier</button>
+                    </div>
+                </form>
+            `;
+            showModal('supplierModal', supplier ? 'Edit Supplier' : 'Add Supplier', contentHtml, saveSupplier, formId);
+        }
+
+        async function saveSupplier(formData) {
+            const supplierData = {
+                name: formData.get('name'),
+                phone: formData.get('phone'),
+                email: formData.get('email'),
+                address: formData.get('address'),
+            };
+            const id = formData.get('id');
+             try {
+                if (id) {
+                    supplierData.id = parseInt(id);
+                    const existingSupplier = await getItem(STORE_SUPPLIERS, supplierData.id);
+                    supplierData.openingBalance = existingSupplier.openingBalance;
+                    supplierData.currentBalance = existingSupplier.currentBalance;
+                    await updateItem(STORE_SUPPLIERS, supplierData);
+                } else {
+                    supplierData.openingBalance = parseFloat(formData.get('openingBalance')) || 0;
+                    supplierData.currentBalance = supplierData.openingBalance;
+                    await addItem(STORE_SUPPLIERS, supplierData);
+                }
+                await loadSuppliersTable();
+                await renderDashboard();
+            } catch (error) {
+                console.error('Error saving supplier:', error);
+                alert('Error saving supplier.');
+            }
+        }
+
+        async function deleteSupplier(supplier) {
+            if (confirm(`Are you sure you want to delete ${supplier.name}? This will also affect related purchase records and balances.`)) {
+                 try {
+                    await deleteItem(STORE_SUPPLIERS, supplier.id);
+                    await loadSuppliersTable();
+                    await renderDashboard();
+                } catch (error) {
+                    console.error('Error deleting supplier:', error);
+                    alert('Error deleting supplier.');
+                }
+            }
+        }
+
+        async function renderOtherIncomesPage() {
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2>Other Incomes</h2>
+                    <button class="btn btn-primary" id="addOtherIncomeBtn">Record New Income</button>
+                </div>
+                <table id="otherIncomesTable"></table>
+            `;
+            document.getElementById('addOtherIncomeBtn').onclick = () => showOtherIncomeForm();
+            await loadOtherIncomesTable();
+        }
+
+        async function loadOtherIncomesTable() {
+            const incomes = await getAllItems(STORE_OTHER_INCOMES);
+            renderTable('otherIncomesTable', incomes.sort((a,b) => new Date(b.date) - new Date(a.date)),
+                ['ID', 'Date', 'Source', 'Amount', 'Description', 'Payment Method'],
+                (i) => [i.id, i.date, i.source, `Rs. ${i.amount.toFixed(2)}`, i.description, i.paymentMethod],
+                [
+                    { label: 'Edit', class: 'btn-secondary', handler: (i) => showOtherIncomeForm(i) },
+                    { label: 'Delete', class: 'btn-danger', handler: deleteOtherIncome }
+                ]
+            );
+        }
+        
+        function showOtherIncomeForm(income = null) {
+            const formId = 'otherIncomeForm';
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="id" value="${income?.id || ''}">
+                    <div class="form-group">
+                        <label for="incomeDate">Date</label>
+                        <input type="date" id="incomeDate" name="date" value="${income?.date || getTodayDate()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeSource">Source of Income</label>
+                        <input type="text" id="incomeSource" name="source" value="${income?.source || ''}" required list="incomeSources">
+                        <datalist id="incomeSources">
+                            <option value="Rent Received">
+                            <option value="Commission Earned">
+                            <option value="Interest Received">
+                            <option value="Sale of Scrap/Assets">
+                            <option value="Miscellaneous Income">
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeAmount">Amount Received</label>
+                        <input type="number" id="incomeAmount" name="amount" value="${income?.amount || ''}" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeDescription">Description</label>
+                        <textarea id="incomeDescription" name="description">${income?.description || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomePaymentMethod">Payment Method Received</label>
+                        <select id="incomePaymentMethod" name="paymentMethod">
+                            <option value="Cash" ${income?.paymentMethod === 'Cash' ? 'selected' : ''}>Cash</option>
+                            <option value="Bank Transfer" ${income?.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                            <option value="Cheque" ${income?.paymentMethod === 'Cheque' ? 'selected' : ''}>Cheque</option>
+                            <option value="Other" ${income?.paymentMethod === 'Other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${income ? 'Update' : 'Save'} Income</button>
+                    </div>
+                </form>
+            `;
+            showModal('otherIncomeModal', income ? 'Edit Income' : 'Record Other Income', contentHtml, saveOtherIncome, formId);
+        }
+
+        async function saveOtherIncome(formData) {
+            const incomeData = {
+                date: formData.get('date'),
+                source: formData.get('source'),
+                amount: parseFloat(formData.get('amount')),
+                description: formData.get('description'),
+                paymentMethod: formData.get('paymentMethod'),
+            };
+            const id = formData.get('id');
+            if (incomeData.amount <= 0) {
+                alert('Income amount must be positive.');
+                return;
+            }
+            try {
+                if (id) {
+                    incomeData.id = parseInt(id);
+                    await updateItem(STORE_OTHER_INCOMES, incomeData);
+                } else {
+                    await addItem(STORE_OTHER_INCOMES, incomeData);
+                }
+                await loadOtherIncomesTable();
+                await renderDashboard(); 
+            } catch (error) {
+                console.error('Error saving other income:', error);
+                alert('Error saving other income.');
+            }
+        }
+
+        async function deleteOtherIncome(income) {
+            if (confirm(`Are you sure you want to delete this income of Rs. ${income.amount} from ${income.source}?`)) {
+                 try {
+                    await deleteItem(STORE_OTHER_INCOMES, income.id);
+                    await loadOtherIncomesTable();
+                    await renderDashboard();
+                } catch (error) {
+                    console.error('Error deleting other income:', error);
+                    alert('Error deleting other income.');
+                }
+            }
+        }
+
+        async function renderExpensesPage() {
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2>Expenses</h2>
+                    <button class="btn btn-primary" id="addExpenseBtn">Record New Expense</button>
+                </div>
+                <table id="expensesTable"></table>
+            `;
+            document.getElementById('addExpenseBtn').onclick = () => showExpenseForm();
+            await loadExpensesTable();
+        }
+
+        async function loadExpensesTable() {
+            const expenses = await getAllItems(STORE_EXPENSES);
+            renderTable('expensesTable', expenses.sort((a,b) => new Date(b.date) - new Date(a.date)),
+                ['ID', 'Date', 'Category', 'Amount', 'Description', 'Payment Method'],
+                (e) => [e.id, e.date, e.category, `Rs. ${e.amount.toFixed(2)}`, e.description, e.paymentMethod],
+                [
+                    { label: 'Edit', class: 'btn-secondary', handler: (e) => showExpenseForm(e) },
+                    { label: 'Delete', class: 'btn-danger', handler: deleteExpense }
+                ]
+            );
+        }
+        
+        function showExpenseForm(expense = null) {
+            const formId = 'expenseForm';
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="id" value="${expense?.id || ''}">
+                    <div class="form-group">
+                        <label for="expenseDate">Date</label>
+                        <input type="date" id="expenseDate" name="date" value="${expense?.date || getTodayDate()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseCategory">Category</label>
+                        <input type="text" id="expenseCategory" name="category" value="${expense?.category || ''}" required list="expenseCategories">
+                        <datalist id="expenseCategories">
+                            <option value="Rent">
+                            <option value="Utilities">
+                            <option value="Salaries">
+                            <option value="Supplies">
+                            <option value="Maintenance">
+                            <option value="Marketing">
+                            <option value="Travel">
+                            <option value="Miscellaneous">
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAmount">Amount</label>
+                        <input type="number" id="expenseAmount" name="amount" value="${expense?.amount || ''}" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseDescription">Description</label>
+                        <textarea id="expenseDescription" name="description">${expense?.description || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="expensePaymentMethod">Payment Method</label>
+                        <select id="expensePaymentMethod" name="paymentMethod">
+                            <option value="Cash" ${expense?.paymentMethod === 'Cash' ? 'selected' : ''}>Cash</option>
+                            <option value="Bank Transfer" ${expense?.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                            <option value="Credit Card" ${expense?.paymentMethod === 'Credit Card' ? 'selected' : ''}>Credit Card</option>
+                            <option value="Other" ${expense?.paymentMethod === 'Other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expensePaidTo">Paid To (Optional)</label>
+                        <input type="text" id="expensePaidTo" name="paidTo" value="${expense?.paidTo || ''}">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${expense ? 'Update' : 'Save'} Expense</button>
+                    </div>
+                </form>
+            `;
+            showModal('expenseModal', expense ? 'Edit Expense' : 'Record Expense', contentHtml, saveExpense, formId);
+        }
+
+        async function saveExpense(formData) {
+            const expenseData = {
+                date: formData.get('date'),
+                category: formData.get('category'),
+                amount: parseFloat(formData.get('amount')),
+                description: formData.get('description'),
+                paymentMethod: formData.get('paymentMethod'),
+                paidTo: formData.get('paidTo'),
+            };
+            const id = formData.get('id');
+            try {
+                if (id) {
+                    expenseData.id = parseInt(id);
+                    await updateItem(STORE_EXPENSES, expenseData);
+                } else {
+                    await addItem(STORE_EXPENSES, expenseData);
+                }
+                await loadExpensesTable();
+                await renderDashboard(); 
+            } catch (error) {
+                console.error('Error saving expense:', error);
+                alert('Error saving expense.');
+            }
+        }
+
+        async function deleteExpense(expense) {
+            if (confirm(`Are you sure you want to delete this expense of Rs. ${expense.amount} for ${expense.category}?`)) {
+                 try {
+                    await deleteItem(STORE_EXPENSES, expense.id);
+                    await loadExpensesTable();
+                    await renderDashboard();
+                } catch (error) {
+                    console.error('Error deleting expense:', error);
+                    alert('Error deleting expense.');
+                }
+            }
+        }
+
+        let saleFormItems = []; 
+
+        async function renderSalesPage() {
+             mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2>Sales</h2>
+                    <button class="btn btn-primary" id="addSaleBtn">Record New Sale</button>
+                </div>
+                <table id="salesTable"></table>
+            `;
+            document.getElementById('addSaleBtn').onclick = () => showSaleForm();
+            await loadSalesTable();
+        }
+        
+        async function loadSalesTable() {
+            const sales = await getAllItems(STORE_SALES);
+            renderTable('salesTable', sales.sort((a,b) => new Date(b.date) - new Date(a.date)),
+                ['ID', 'Date', 'Customer', 'Total', 'Paid', 'Due'],
+                (s) => [s.id, s.date, s.customerName || 'Walk-in', `Rs. ${s.grandTotal.toFixed(2)}`, `Rs. ${s.amountPaid.toFixed(2)}`, `Rs. ${s.amountDue.toFixed(2)}`],
+                [
+                    { label: 'View', class: 'btn-info', handler: (s) => showSaleForm(s, true) }, 
+                    { label: 'Delete', class: 'btn-danger', handler: deleteSaleTransaction }
+                ]
+            );
+        }
+        
+        async function deleteSaleTransaction(sale) {
+             if (confirm(`Are you sure you want to delete Sale ID ${sale.id}? This will revert stock and customer balance changes.`)) {
+                const transaction = db.transaction([STORE_SALES, STORE_PRODUCTS, STORE_CUSTOMERS], 'readwrite');
+                const salesStore = transaction.objectStore(STORE_SALES);
+                const productsStore = transaction.objectStore(STORE_PRODUCTS);
+                const customersStore = transaction.objectStore(STORE_CUSTOMERS);
+
+                try {
+                    for (const item of sale.items) {
+                        const productReq = productsStore.get(item.productId);
+                        const product = await new Promise((res, rej) => { productReq.onsuccess = () => res(productReq.result); productReq.onerror = rej; });
+                        if (product) {
+                            product.stock += item.quantity;
+                            productsStore.put(product);
+                        }
+                    }
+                    if (sale.customerId) {
+                        const customerReq = customersStore.get(sale.customerId);
+                        const customer = await new Promise((res, rej) => { customerReq.onsuccess = () => res(customerReq.result); customerReq.onerror = rej; });
+                        if (customer) {
+                            customer.currentBalance -= sale.grandTotal; 
+                            customer.currentBalance += sale.amountPaid; 
+                            customersStore.put(customer);
+                        }
+                    }
+                    await new Promise((res,rej) => {
+                        const delReq = salesStore.delete(sale.id);
+                        delReq.onsuccess = res;
+                        delReq.onerror = rej;
+                    });
+                    transaction.oncomplete = async () => {
+                        alert('Sale deleted and changes reverted successfully.');
+                        await loadSalesTable();
+                        await renderDashboard();
+                        if (mainContent.querySelector('#customerKhataTitle')?.dataset.customerId == sale.customerId) {
+                            await renderCustomerKhata(sale.customerId);
+                        }
+                    };
+                    transaction.onerror = (event) => {
+                        console.error('Transaction error deleting sale:', event.target.error);
+                        alert('Error deleting sale transaction.');
+                    };
+                } catch (error) {
+                    console.error('Error processing sale deletion:', error);
+                    transaction.abort();
+                    alert('Error deleting sale: ' + error.message);
+                }
+            }
+        }
+        
+        async function showSaleForm(sale = null, viewOnly = false) {
+            saleFormItems = sale ? [...sale.items] : []; 
+            const products = await getAllItems(STORE_PRODUCTS);
+            const customers = await getAllItems(STORE_CUSTOMERS);
+
+            let productOptions = products.map(p => `<option value="${p.id}" data-price="${p.salePrice}" data-stock="${p.stock}" data-name="${p.name}">${p.name} (Stock: ${p.stock})</option>`).join('');
+            let customerOptions = customers.map(c => `<option value="${c.id}" ${sale?.customerId == c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+            
+            const formId = 'saleForm';
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="id" value="${sale?.id || ''}">
+                    <div class="form-group">
+                        <label for="saleDate">Date</label>
+                        <input type="date" id="saleDate" name="date" value="${sale?.date || getTodayDate()}" ${viewOnly ? 'readonly' : ''} required>
+                    </div>
+                    <div class="form-group">
+                        <label for="saleCustomer">Customer</label>
+                        <select id="saleCustomer" name="customerId" ${viewOnly ? 'disabled' : ''}>
+                            <option value="">Walk-in Customer</option>
+                            ${customerOptions}
+                        </select>
+                    </div>
+                    ${!viewOnly ? `
+                    <h4>Add Items</h4>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <select id="saleProductSelect" style="flex-grow:1;">
+                            <option value="">Select Product</option>
+                            ${productOptions}
+                        </select>
+                        <input type="number" id="saleQuantity" placeholder="Qty" style="width:70px;" min="1">
+                        <button type="button" class="btn btn-info btn-sm" id="addSaleItemBtn">Add Item</button>
+                    </div>` : ''}
+                    <h4>Items</h4>
+                    <div id="items-table-container">
+                        <table id="saleItemsTable">
+                            <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th>${!viewOnly ? '<th>Action</th>' : ''}</tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label for="saleSubTotal">Subtotal</label>
+                        <input type="number" id="saleSubTotal" name="subTotal" value="${sale?.subTotal || 0}" readonly>
+                    </div>
+                     <div class="form-group">
+                        <label for="saleDiscount">Discount (Amount)</label>
+                        <input type="number" id="saleDiscount" name="discount" value="${sale?.discount || 0}" step="0.01" ${viewOnly ? 'readonly' : ''}>
+                    </div>
+                     <div class="form-group">
+                        <label for="saleTax">Tax (Amount)</label>
+                        <input type="number" id="saleTax" name="tax" value="${sale?.tax || 0}" step="0.01" ${viewOnly ? 'readonly' : ''}>
+                    </div>
+                    <div class="form-group">
+                        <label for="saleGrandTotal">Grand Total</label>
+                        <input type="number" id="saleGrandTotal" name="grandTotal" value="${sale?.grandTotal || 0}" readonly>
+                    </div>
+                     <div class="form-group">
+                        <label for="saleAmountPaid">Amount Paid</label>
+                        <input type="number" id="saleAmountPaid" name="amountPaid" value="${sale?.amountPaid || 0}" step="0.01" ${viewOnly ? 'readonly' : ''} required>
+                    </div>
+                     <div class="form-group">
+                        <label for="saleAmountDue">Amount Due</label>
+                        <input type="number" id="saleAmountDue" name="amountDue" value="${sale?.amountDue || 0}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="salePaymentMethod">Payment Method</label>
+                        <select id="salePaymentMethod" name="paymentMethod" ${viewOnly ? 'disabled' : ''}>
+                            <option value="Cash" ${sale?.paymentMethod === 'Cash' ? 'selected' : ''}>Cash</option>
+                            <option value="Bank Transfer" ${sale?.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                            <option value="Card" ${sale?.paymentMethod === 'Card' ? 'selected' : ''}>Card</option>
+                            <option value="Credit" ${sale?.paymentMethod === 'Credit' ? 'selected' : ''}>Credit (If customer selected)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="saleNotes">Notes</label>
+                        <textarea id="saleNotes" name="notes" ${viewOnly ? 'readonly' : ''}>${sale?.notes || ''}</textarea>
+                    </div>
+                    ${!viewOnly ? `<div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${sale ? 'Update (Info Only)' : 'Save'} Sale</button>
+                    </div>` : ''}
+                </form>
+            `;
+            showModal('saleModal', sale ? (viewOnly ? 'View Sale Details' : 'Edit Sale') : 'Record New Sale', contentHtml, viewOnly ? null : saveSaleTransaction, formId);
+            if (!viewOnly) {
+                document.getElementById('addSaleItemBtn').onclick = addSaleItemToForm;
+                document.getElementById('saleDiscount').oninput = updateSaleTotals;
+                document.getElementById('saleTax').oninput = updateSaleTotals;
+                document.getElementById('saleAmountPaid').oninput = updateSaleTotals;
+            }
+            renderSaleItemsTable(viewOnly);
+            updateSaleTotals(); 
+        }
+
+        function addSaleItemToForm() {
+            const productSelect = document.getElementById('saleProductSelect');
+            const quantityInput = document.getElementById('saleQuantity');
+            const productId = parseInt(productSelect.value);
+            const quantity = parseInt(quantityInput.value);
+            if (!productId || !quantity || quantity <= 0) {
+                alert('Please select a product and enter a valid quantity.');
+                return;
+            }
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const unitPrice = parseFloat(selectedOption.dataset.price);
+            const stock = parseInt(selectedOption.dataset.stock);
+            const productName = selectedOption.dataset.name;
+            if (quantity > stock) {
+                alert(`Not enough stock for ${productName}. Available: ${stock}`);
+                return;
+            }
+            const existingItem = saleFormItems.find(item => item.productId === productId);
+            if (existingItem) {
+                if (existingItem.quantity + quantity > stock) {
+                     alert(`Cannot add ${quantity} more. Total quantity (${existingItem.quantity + quantity}) would exceed stock for ${productName}. Available: ${stock}`);
+                     return;
+                }
+                existingItem.quantity += quantity;
+                existingItem.totalPrice = existingItem.quantity * existingItem.unitPrice;
+            } else {
+                 saleFormItems.push({ productId, productName, quantity, unitPrice, totalPrice: quantity * unitPrice });
+            }
+            renderSaleItemsTable();
+            updateSaleTotals();
+            quantityInput.value = ''; 
+            productSelect.value = ''; 
+        }
+
+        function renderSaleItemsTable(viewOnly = false) {
+            const tbody = document.querySelector('#saleItemsTable tbody');
+            tbody.innerHTML = '';
+            saleFormItems.forEach((item, index) => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = item.productName;
+                row.insertCell().textContent = item.quantity;
+                row.insertCell().textContent = item.unitPrice.toFixed(2);
+                row.insertCell().textContent = item.totalPrice.toFixed(2);
+                if(!viewOnly){
+                    const actionCell = row.insertCell();
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-danger btn-sm';
+                    removeBtn.textContent = 'Remove';
+                    removeBtn.onclick = () => {
+                        saleFormItems.splice(index, 1);
+                        renderSaleItemsTable();
+                        updateSaleTotals();
+                    };
+                    actionCell.appendChild(removeBtn);
+                }
+            });
+        }
+
+        function updateSaleTotals() {
+            const subTotal = saleFormItems.reduce((sum, item) => sum + item.totalPrice, 0);
+            const discount = parseFloat(document.getElementById('saleDiscount')?.value) || 0;
+            const tax = parseFloat(document.getElementById('saleTax')?.value) || 0;
+            const grandTotal = subTotal - discount + tax;
+            const amountPaid = parseFloat(document.getElementById('saleAmountPaid')?.value) || 0;
+            const amountDue = grandTotal - amountPaid;
+            if(document.getElementById('saleSubTotal')) document.getElementById('saleSubTotal').value = subTotal.toFixed(2);
+            if(document.getElementById('saleGrandTotal')) document.getElementById('saleGrandTotal').value = grandTotal.toFixed(2);
+            if(document.getElementById('saleAmountDue')) document.getElementById('saleAmountDue').value = amountDue.toFixed(2);
+        }
+        
+        async function saveSaleTransaction(formData) {
+            if (saleFormItems.length === 0) {
+                alert('Please add items to the sale.');
+                return;
+            }
+            const saleData = {
+                date: formData.get('date'),
+                customerId: formData.get('customerId') ? parseInt(formData.get('customerId')) : null,
+                customerName: formData.get('customerId') ? document.getElementById('saleCustomer').options[document.getElementById('saleCustomer').selectedIndex].text : 'Walk-in',
+                items: [...saleFormItems], 
+                subTotal: parseFloat(formData.get('subTotal')),
+                discount: parseFloat(formData.get('discount')),
+                tax: parseFloat(formData.get('tax')),
+                grandTotal: parseFloat(formData.get('grandTotal')),
+                amountPaid: parseFloat(formData.get('amountPaid')),
+                amountDue: parseFloat(formData.get('amountDue')),
+                paymentMethod: formData.get('paymentMethod'),
+                notes: formData.get('notes')
+            };
+            if (saleData.amountDue > 0 && !saleData.customerId && saleData.paymentMethod !== 'Credit') {
+                 alert('Cannot have an amount due for a walk-in customer unless payment method is "Credit". Please select a customer or ensure full payment.');
+                 return; 
+            }
+             if (saleData.paymentMethod === 'Credit' && !saleData.customerId) {
+                alert('Please select a customer for credit sales.');
+                return;
+            }
+            const transaction = db.transaction([STORE_SALES, STORE_PRODUCTS, STORE_CUSTOMERS], 'readwrite');
+            const salesStore = transaction.objectStore(STORE_SALES);
+            const productsStore = transaction.objectStore(STORE_PRODUCTS);
+            const customersStore = transaction.objectStore(STORE_CUSTOMERS);
+            try {
+                const saleId = await new Promise((resolve, reject) => {
+                    const req = salesStore.add(saleData);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = (e) => reject(e.target.error);
+                });
+                for (const item of saleData.items) {
+                    const productReq = productsStore.get(item.productId);
+                    const product = await new Promise((res, rej) => { productReq.onsuccess = () => res(productReq.result); productReq.onerror = rej; });
+                    if (product) {
+                        product.stock -= item.quantity;
+                        productsStore.put(product);
+                    } else {
+                        throw new Error(`Product with ID ${item.productId} not found during stock update.`);
+                    }
+                }
+                if (saleData.customerId) {
+                    const customerReq = customersStore.get(saleData.customerId);
+                    const customer = await new Promise((res, rej) => { customerReq.onsuccess = () => res(customerReq.result); customerReq.onerror = rej; });
+                    if (customer) {
+                        customer.currentBalance = (customer.currentBalance || 0) + saleData.amountDue;
+                        customersStore.put(customer);
+                    } else {
+                         throw new Error(`Customer with ID ${saleData.customerId} not found during balance update.`);
+                    }
+                }
+                transaction.oncomplete = async () => {
+                    alert('Sale recorded successfully!');
+                    saleFormItems = []; 
+                    await loadSalesTable();
+                    await renderDashboard();
+                    if (mainContent.querySelector('#customerKhataTitle')?.dataset.customerId == saleData.customerId) {
+                        await renderCustomerKhata(saleData.customerId);
+                    }
+                };
+                transaction.onerror = (event) => {
+                    console.error('Transaction error saving sale:', event.target.error);
+                    alert('Error saving sale transaction.');
+                };
+            } catch (error) {
+                console.error('Error processing sale:', error);
+                transaction.abort();
+                alert('Error saving sale: ' + error.message);
+            }
+        }
+
+        let purchaseFormItems = [];
+
+        async function renderPurchasesPage() {
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2>Purchases</h2>
+                    <button class="btn btn-primary" id="addPurchaseBtn">Record New Purchase</button>
+                </div>
+                <table id="purchasesTable"></table>
+            `;
+            document.getElementById('addPurchaseBtn').onclick = () => showPurchaseForm();
+            await loadPurchasesTable();
+        }
+
+        async function loadPurchasesTable() {
+            const purchases = await getAllItems(STORE_PURCHASES);
+            renderTable('purchasesTable', purchases.sort((a,b) => new Date(b.date) - new Date(a.date)),
+                ['ID', 'Date', 'Supplier', 'Total', 'Paid', 'Due'],
+                (p) => [p.id, p.date, p.supplierName || 'N/A', `Rs. ${p.grandTotal.toFixed(2)}`, `Rs. ${p.amountPaid.toFixed(2)}`, `Rs. ${p.amountDue.toFixed(2)}`],
+                [
+                    { label: 'View', class: 'btn-info', handler: (p) => showPurchaseForm(p, true) },
+                    { label: 'Delete', class: 'btn-danger', handler: deletePurchaseTransaction }
+                ]
+            );
+        }
+        
+        async function deletePurchaseTransaction(purchase) {
+             if (confirm(`Are you sure you want to delete Purchase ID ${purchase.id}? This will revert stock and supplier balance changes.`)) {
+                const transaction = db.transaction([STORE_PURCHASES, STORE_PRODUCTS, STORE_SUPPLIERS], 'readwrite');
+                const purchasesStore = transaction.objectStore(STORE_PURCHASES);
+                const productsStore = transaction.objectStore(STORE_PRODUCTS);
+                const suppliersStore = transaction.objectStore(STORE_SUPPLIERS);
+                try {
+                    for (const item of purchase.items) {
+                        const productReq = productsStore.get(item.productId);
+                        const product = await new Promise((res, rej) => { productReq.onsuccess = () => res(productReq.result); productReq.onerror = rej; });
+                        if (product) {
+                            product.stock -= item.quantity; 
+                            if (product.stock < 0) product.stock = 0; 
+                            productsStore.put(product);
+                        }
+                    }
+                    if (purchase.supplierId) {
+                        const supplierReq = suppliersStore.get(purchase.supplierId);
+                        const supplier = await new Promise((res, rej) => { supplierReq.onsuccess = () => res(supplierReq.result); supplierReq.onerror = rej; });
+                        if (supplier) {
+                            supplier.currentBalance -= purchase.grandTotal; 
+                            supplier.currentBalance += purchase.amountPaid; 
+                            suppliersStore.put(supplier);
+                        }
+                    }
+                    await new Promise((res,rej) => {
+                        const delReq = purchasesStore.delete(purchase.id);
+                        delReq.onsuccess = res;
+                        delReq.onerror = rej;
+                    });
+                    transaction.oncomplete = async () => {
+                        alert('Purchase deleted and changes reverted successfully.');
+                        await loadPurchasesTable();
+                        await renderDashboard();
+                        if (mainContent.querySelector('#supplierKhataTitle')?.dataset.supplierId == purchase.supplierId) {
+                            await renderSupplierKhata(purchase.supplierId);
+                        }
+                    };
+                     transaction.onerror = (event) => {
+                        console.error('Transaction error deleting purchase:', event.target.error);
+                        alert('Error deleting purchase transaction.');
+                    };
+                } catch (error) {
+                    console.error('Error processing purchase deletion:', error);
+                    transaction.abort();
+                    alert('Error deleting purchase: ' + error.message);
+                }
+            }
+        }
+
+        async function showPurchaseForm(purchase = null, viewOnly = false) {
+            purchaseFormItems = purchase ? [...purchase.items] : [];
+            const products = await getAllItems(STORE_PRODUCTS);
+            const suppliers = await getAllItems(STORE_SUPPLIERS);
+            let productOptions = products.map(p => `<option value="${p.id}" data-price="${p.purchasePrice}" data-name="${p.name}">${p.name}</option>`).join('');
+            let supplierOptions = suppliers.map(s => `<option value="${s.id}" ${purchase?.supplierId == s.id ? 'selected' : ''}>${s.name}</option>`).join('');
+            const formId = 'purchaseForm';
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="id" value="${purchase?.id || ''}">
+                    <div class="form-group">
+                        <label for="purchaseDate">Date</label>
+                        <input type="date" id="purchaseDate" name="date" value="${purchase?.date || getTodayDate()}" ${viewOnly ? 'readonly' : ''} required>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseSupplier">Supplier</label>
+                        <select id="purchaseSupplier" name="supplierId" ${viewOnly ? 'disabled' : ''}>
+                            <option value="">Select Supplier</option>
+                            ${supplierOptions}
+                        </select>
+                    </div>
+                     ${!viewOnly ? `
+                    <h4>Add Items</h4>
+                     <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <select id="purchaseProductSelect" style="flex-grow:1;">
+                            <option value="">Select Product</option>
+                            ${productOptions}
+                        </select>
+                        <input type="number" id="purchaseQuantity" placeholder="Qty" style="width:70px;" min="1">
+                        <input type="number" id="purchaseUnitPrice" placeholder="Unit Price" style="width:100px;" step="0.01" min="0">
+                        <button type="button" class="btn btn-info btn-sm" id="addPurchaseItemBtn">Add Item</button>
+                    </div>` : ''}
+                    <h4>Items</h4>
+                    <div id="items-table-container">
+                        <table id="purchaseItemsTable">
+                            <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th>${!viewOnly ? '<th>Action</th>' : ''}</tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseSubTotal">Subtotal</label>
+                        <input type="number" id="purchaseSubTotal" name="subTotal" value="${purchase?.subTotal || 0}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseDiscount">Discount (Amount)</label>
+                        <input type="number" id="purchaseDiscount" name="discount" value="${purchase?.discount || 0}" step="0.01" ${viewOnly ? 'readonly' : ''}>
+                    </div>
+                     <div class="form-group">
+                        <label for="purchaseTax">Tax (Amount)</label>
+                        <input type="number" id="purchaseTax" name="tax" value="${purchase?.tax || 0}" step="0.01" ${viewOnly ? 'readonly' : ''}>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseGrandTotal">Grand Total</label>
+                        <input type="number" id="purchaseGrandTotal" name="grandTotal" value="${purchase?.grandTotal || 0}" readonly>
+                    </div>
+                     <div class="form-group">
+                        <label for="purchaseAmountPaid">Amount Paid</label>
+                        <input type="number" id="purchaseAmountPaid" name="amountPaid" value="${purchase?.amountPaid || 0}" step="0.01" ${viewOnly ? 'readonly' : ''} required>
+                    </div>
+                     <div class="form-group">
+                        <label for="purchaseAmountDue">Amount Due (to Supplier)</label>
+                        <input type="number" id="purchaseAmountDue" name="amountDue" value="${purchase?.amountDue || 0}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchasePaymentMethod">Payment Method</label>
+                        <select id="purchasePaymentMethod" name="paymentMethod" ${viewOnly ? 'disabled' : ''}>
+                            <option value="Cash" ${purchase?.paymentMethod === 'Cash' ? 'selected' : ''}>Cash</option>
+                            <option value="Bank Transfer" ${purchase?.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                            <option value="Credit" ${purchase?.paymentMethod === 'Credit' ? 'selected' : ''}>Credit (Pay Later)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseNotes">Notes (e.g., Invoice Number)</label>
+                        <textarea id="purchaseNotes" name="notes" ${viewOnly ? 'readonly' : ''}>${purchase?.notes || ''}</textarea>
+                    </div>
+                    ${!viewOnly ? `<div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${purchase ? 'Update (Info Only)' : 'Save'} Purchase</button>
+                    </div>` : ''}
+                </form>
+            `;
+            showModal('purchaseModal', purchase ? (viewOnly ? 'View Purchase Details' : 'Edit Purchase') : 'Record New Purchase', contentHtml, viewOnly ? null : savePurchaseTransaction, formId);
+            if (!viewOnly) {
+                document.getElementById('addPurchaseItemBtn').onclick = addPurchaseItemToForm;
+                document.getElementById('purchaseDiscount').oninput = updatePurchaseTotals;
+                document.getElementById('purchaseTax').oninput = updatePurchaseTotals;
+                document.getElementById('purchaseAmountPaid').oninput = updatePurchaseTotals;
+                document.getElementById('purchaseProductSelect').onchange = (e) => { 
+                    const selectedOption = e.target.options[e.target.selectedIndex];
+                    if (selectedOption && selectedOption.dataset.price) {
+                        document.getElementById('purchaseUnitPrice').value = selectedOption.dataset.price;
+                    }
+                };
+            }
+            renderPurchaseItemsTable(viewOnly);
+            updatePurchaseTotals();
+        }
+
+        function addPurchaseItemToForm() {
+            const productSelect = document.getElementById('purchaseProductSelect');
+            const quantityInput = document.getElementById('purchaseQuantity');
+            const unitPriceInput = document.getElementById('purchaseUnitPrice');
+            const productId = parseInt(productSelect.value);
+            const quantity = parseInt(quantityInput.value);
+            const unitPrice = parseFloat(unitPriceInput.value);
+            if (!productId || !quantity || quantity <= 0 || isNaN(unitPrice) || unitPrice < 0) {
+                alert('Please select a product, enter valid quantity and unit price.');
+                return;
+            }
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const productName = selectedOption.dataset.name;
+            const existingItem = purchaseFormItems.find(item => item.productId === productId);
+            if (existingItem) { 
+                existingItem.quantity += quantity;
+                existingItem.unitPrice = unitPrice; 
+                existingItem.totalPrice = existingItem.quantity * existingItem.unitPrice;
+            } else {
+                purchaseFormItems.push({ productId, productName, quantity, unitPrice, totalPrice: quantity * unitPrice });
+            }
+            renderPurchaseItemsTable();
+            updatePurchaseTotals();
+            quantityInput.value = ''; 
+            unitPriceInput.value = '';
+            productSelect.value = '';
+        }
+
+        function renderPurchaseItemsTable(viewOnly = false) {
+            const tbody = document.querySelector('#purchaseItemsTable tbody');
+            tbody.innerHTML = '';
+            purchaseFormItems.forEach((item, index) => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = item.productName;
+                row.insertCell().textContent = item.quantity;
+                row.insertCell().textContent = item.unitPrice.toFixed(2);
+                row.insertCell().textContent = item.totalPrice.toFixed(2);
+                if (!viewOnly) {
+                    const actionCell = row.insertCell();
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-danger btn-sm';
+                    removeBtn.textContent = 'Remove';
+                    removeBtn.onclick = () => {
+                        purchaseFormItems.splice(index, 1);
+                        renderPurchaseItemsTable();
+                        updatePurchaseTotals();
+                    };
+                    actionCell.appendChild(removeBtn);
+                }
+            });
+        }
+
+        function updatePurchaseTotals() {
+            const subTotal = purchaseFormItems.reduce((sum, item) => sum + item.totalPrice, 0);
+            const discount = parseFloat(document.getElementById('purchaseDiscount')?.value) || 0;
+            const tax = parseFloat(document.getElementById('purchaseTax')?.value) || 0;
+            const grandTotal = subTotal - discount + tax;
+            const amountPaid = parseFloat(document.getElementById('purchaseAmountPaid')?.value) || 0;
+            const amountDue = grandTotal - amountPaid;
+            if(document.getElementById('purchaseSubTotal')) document.getElementById('purchaseSubTotal').value = subTotal.toFixed(2);
+            if(document.getElementById('purchaseGrandTotal')) document.getElementById('purchaseGrandTotal').value = grandTotal.toFixed(2);
+            if(document.getElementById('purchaseAmountDue')) document.getElementById('purchaseAmountDue').value = amountDue.toFixed(2);
+        }
+
+        async function savePurchaseTransaction(formData) {
+            if (purchaseFormItems.length === 0) {
+                alert('Please add items to the purchase.');
+                return;
+            }
+             const supplierId = formData.get('supplierId') ? parseInt(formData.get('supplierId')) : null;
+             if (!supplierId) {
+                 alert('Please select a supplier.');
+                 return;
+             }
+            const purchaseData = {
+                date: formData.get('date'),
+                supplierId: supplierId,
+                supplierName: document.getElementById('purchaseSupplier').options[document.getElementById('purchaseSupplier').selectedIndex].text,
+                items: [...purchaseFormItems],
+                subTotal: parseFloat(formData.get('subTotal')),
+                discount: parseFloat(formData.get('discount')),
+                tax: parseFloat(formData.get('tax')),
+                grandTotal: parseFloat(formData.get('grandTotal')),
+                amountPaid: parseFloat(formData.get('amountPaid')),
+                amountDue: parseFloat(formData.get('amountDue')),
+                paymentMethod: formData.get('paymentMethod'),
+                notes: formData.get('notes')
+            };
+            const transaction = db.transaction([STORE_PURCHASES, STORE_PRODUCTS, STORE_SUPPLIERS], 'readwrite');
+            const purchasesStore = transaction.objectStore(STORE_PURCHASES);
+            const productsStore = transaction.objectStore(STORE_PRODUCTS);
+            const suppliersStore = transaction.objectStore(STORE_SUPPLIERS);
+            try {
+                const purchaseId = await new Promise((resolve, reject) => {
+                    const req = purchasesStore.add(purchaseData);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = (e) => reject(e.target.error);
+                });
+                for (const item of purchaseData.items) {
+                    const productReq = productsStore.get(item.productId);
+                    const product = await new Promise((res, rej) => { productReq.onsuccess = () => res(productReq.result); productReq.onerror = rej; });
+                    if (product) {
+                        product.stock += item.quantity;
+                        productsStore.put(product);
+                    } else {
+                        throw new Error(`Product with ID ${item.productId} not found. Add it first.`);
+                    }
+                }
+                if (purchaseData.supplierId) {
+                    const supplierReq = suppliersStore.get(purchaseData.supplierId);
+                    const supplier = await new Promise((res, rej) => { supplierReq.onsuccess = () => res(supplierReq.result); supplierReq.onerror = rej; });
+                    if (supplier) {
+                        supplier.currentBalance = (supplier.currentBalance || 0) + purchaseData.amountDue; 
+                        suppliersStore.put(supplier);
+                    } else {
+                         throw new Error(`Supplier with ID ${purchaseData.supplierId} not found.`);
+                    }
+                }
+                transaction.oncomplete = async () => {
+                    alert('Purchase recorded successfully!');
+                    purchaseFormItems = [];
+                    await loadPurchasesTable();
+                    await renderDashboard();
+                     if (mainContent.querySelector('#supplierKhataTitle')?.dataset.supplierId == purchaseData.supplierId) {
+                        await renderSupplierKhata(purchaseData.supplierId);
+                    }
+                };
+                transaction.onerror = (event) => {
+                    console.error('Transaction error saving purchase:', event.target.error);
+                    alert('Error saving purchase transaction.');
+                };
+            } catch (error) {
+                console.error('Error processing purchase:', error);
+                transaction.abort();
+                alert('Error saving purchase: ' + error.message);
+            }
+        }
+        
+        async function showPaymentForm(type, relatedId, relatedName) {
+            const formId = 'paymentForm';
+            const title = type === 'customer' ? `Record Payment from ${relatedName}` : `Record Payment to ${relatedName}`;
+            const contentHtml = `
+                <form id="${formId}">
+                    <input type="hidden" name="type" value="${type}">
+                    <input type="hidden" name="relatedId" value="${relatedId}">
+                    <div class="form-group">
+                        <label for="paymentDate">Date</label>
+                        <input type="date" id="paymentDate" name="date" value="${getTodayDate()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentAmount">Amount</label>
+                        <input type="number" id="paymentAmount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" name="paymentMethod">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentNotes">Notes</label>
+                        <textarea id="paymentNotes" name="notes"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Record Payment</button>
+                    </div>
+                </form>
+            `;
+            showModal('paymentModal', title, contentHtml, savePayment, formId);
+        }
+
+        async function savePayment(formData) {
+            const paymentData = {
+                date: formData.get('date'),
+                type: formData.get('type'), 
+                relatedId: parseInt(formData.get('relatedId')),
+                amount: parseFloat(formData.get('amount')),
+                paymentMethod: formData.get('paymentMethod'),
+                notes: formData.get('notes')
+            };
+            if (paymentData.amount <= 0) {
+                alert('Payment amount must be greater than zero.');
+                return;
+            }
+            const storeToUpdate = paymentData.type === 'customer' ? STORE_CUSTOMERS : STORE_SUPPLIERS;
+            const transaction = db.transaction([STORE_PAYMENTS, storeToUpdate], 'readwrite');
+            const paymentsStore = transaction.objectStore(STORE_PAYMENTS);
+            const entityStore = transaction.objectStore(storeToUpdate);
+            try {
+                await new Promise((resolve, reject) => {
+                    const req = paymentsStore.add(paymentData);
+                    req.onsuccess = resolve;
+                    req.onerror = (e) => reject(e.target.error);
+                });
+                const entityReq = entityStore.get(paymentData.relatedId);
+                const entity = await new Promise((res, rej) => { entityReq.onsuccess = () => res(entityReq.result); entityReq.onerror = rej; });
+                if (entity) {
+                    if (paymentData.type === 'customer') { 
+                        entity.currentBalance -= paymentData.amount;
+                    } else { 
+                        entity.currentBalance -= paymentData.amount; 
+                    }
+                    entityStore.put(entity);
+                } else {
+                    throw new Error(`${paymentData.type} not found for balance update.`);
+                }
+                transaction.oncomplete = async () => {
+                    alert('Payment recorded successfully!');
+                    await renderDashboard();
+                    if (paymentData.type === 'customer') {
+                        await loadCustomersTable();
+                        if (mainContent.querySelector('#customerKhataTitle')?.dataset.customerId == paymentData.relatedId) {
+                            await renderCustomerKhata(paymentData.relatedId);
+                        }
+                    } else {
+                        await loadSuppliersTable();
+                         if (mainContent.querySelector('#supplierKhataTitle')?.dataset.supplierId == paymentData.relatedId) {
+                            await renderSupplierKhata(paymentData.relatedId);
+                        }
+                    }
+                };
+                transaction.onerror = (event) => {
+                    console.error('Transaction error saving payment:', event.target.error);
+                    alert('Error saving payment transaction.');
+                };
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                transaction.abort();
+                alert('Error saving payment: ' + error.message);
+            }
+        }
+        
+        async function renderReportsPage() {
+            mainContent.innerHTML = `
+                <div class="content-header"><h2>Reports</h2></div>
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="daybook">Day Book</button>
+                    <button class="tab-button" data-tab="profitloss">Profit & Loss</button>
+                    <button class="tab-button" data-tab="stocklevels">Stock Levels</button>
+                    <button class="tab-button" data-tab="customerledgers">Customer Ledgers</button>
+                    <button class="tab-button" data-tab="supplierledgers">Supplier Ledgers</button>
+                </div>
+                <div id="daybook" class="tab-content active"></div>
+                <div id="profitloss" class="tab-content"></div>
+                <div id="stocklevels" class="tab-content"></div>
+                <div id="customerledgers" class="tab-content"></div>
+                <div id="supplierledgers" class="tab-content"></div>
+            `;
+            setupTabs();
+            await renderDayBookReport(); 
+        }
+        
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    button.classList.add('active');
+                    const tabId = button.dataset.tab;
+                    document.getElementById(tabId).classList.add('active');
+                    if (tabId === 'daybook') renderDayBookReport();
+                    else if (tabId === 'profitloss') renderProfitLossReport();
+                    else if (tabId === 'stocklevels') renderStockLevelsReport();
+                    else if (tabId === 'customerledgers') renderCustomerLedgersList();
+                    else if (tabId === 'supplierledgers') renderSupplierLedgersList();
+                });
+            });
+        }
+        
+        async function renderCustomerKhata(customerId) {
+            const customer = await getItem(STORE_CUSTOMERS, customerId);
+            if (!customer) {
+                mainContent.innerHTML = `<p>Customer not found.</p>`;
+                return;
+            }
+            const salesToCustomer = (await getAllItemsByIndex(STORE_SALES, 'customerId', customerId)) || [];
+            const paymentsFromCustomer = (await getAllItemsByIndex(STORE_PAYMENTS, 'relatedId', customerId)).filter(p => p.type === 'customer') || [];
+            let transactions = [];
+            salesToCustomer.forEach(s => transactions.push({
+                date: s.date,
+                description: `Sale (ID: ${s.id})`,
+                debit: s.grandTotal, 
+                credit: 0,
+                details: s.items.map(i => `${i.productName} x${i.quantity}`).join(', ')
+            }));
+            paymentsFromCustomer.forEach(p => transactions.push({
+                date: p.date,
+                description: `Payment Received (ID: ${p.id}) - ${p.paymentMethod}`,
+                debit: 0,
+                credit: p.amount, 
+                details: p.notes || ''
+            }));
+            if (customer.openingBalance !== 0) {
+                 transactions.push({
+                    date: 'Initial', 
+                    description: 'Opening Balance',
+                    debit: customer.openingBalance > 0 ? customer.openingBalance : 0,
+                    credit: customer.openingBalance < 0 ? -customer.openingBalance : 0,
+                    details: ''
+                });
+            }
+            transactions.sort((a, b) => { 
+                 const dateA = new Date(a.date === 'Initial' ? 0 : a.date); 
+                 const dateB = new Date(b.date === 'Initial' ? 0 : b.date);
+                 if (dateA < dateB) return -1;
+                 if (dateA > dateB) return 1;
+                 if (a.description === 'Opening Balance') return -1;
+                 if (b.description === 'Opening Balance') return 1;
+                 if (a.debit > 0 && b.credit > 0) return -1; 
+                 if (a.credit > 0 && b.debit > 0) return 1; 
+                 return 0;
+            });
+
+            let runningBalance = 0;
+            const khataRows = transactions.map(t => {
+                if(t.description === 'Opening Balance'){
+                    runningBalance = t.debit - t.credit;
+                } else {
+                    runningBalance += t.debit - t.credit;
+                }
+                return `<tr>
+                    <td>${t.date}</td>
+                    <td>${t.description}</td>
+                    <td>${t.details}</td>
+                    <td style="text-align:right;">${t.debit > 0 ? t.debit.toFixed(2) : '-'}</td>
+                    <td style="text-align:right;">${t.credit > 0 ? t.credit.toFixed(2) : '-'}</td>
+                    <td style="text-align:right;">${runningBalance.toFixed(2)}</td>
+                </tr>`;
+            }).join('');
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2 id="customerKhataTitle" data-customer-id="${customerId}">Khata for ${customer.name}</h2>
+                    <button class="btn btn-secondary" onclick="navigateTo('customers')">Back to Customers</button>
+                </div>
+                <p><strong>Current Balance (Calculated from Khata): Rs. ${runningBalance.toFixed(2)}</strong></p>
+                <p><strong>Stored Current Balance: Rs. ${customer.currentBalance.toFixed(2)}</strong> (Positive means customer owes)</p>
+                <table>
+                    <thead><tr><th>Date</th><th>Description</th><th>Details</th><th>Debit (Rs.)</th><th>Credit (Rs.)</th><th>Balance (Rs.)</th></tr></thead>
+                    <tbody>${khataRows}</tbody>
+                </table>
+            `;
+        }
+        
+        async function renderSupplierKhata(supplierId) {
+            const supplier = await getItem(STORE_SUPPLIERS, supplierId);
+            if (!supplier) {
+                mainContent.innerHTML = `<p>Supplier not found.</p>`;
+                return;
+            }
+            const purchasesFromSupplier = (await getAllItemsByIndex(STORE_PURCHASES, 'supplierId', supplierId)) || [];
+            const paymentsToSupplier = (await getAllItemsByIndex(STORE_PAYMENTS, 'relatedId', supplierId)).filter(p => p.type === 'supplier') || [];
+            let transactions = [];
+             purchasesFromSupplier.forEach(p => transactions.push({
+                date: p.date,
+                description: `Purchase (ID: ${p.id})`,
+                debit: 0, 
+                credit: p.grandTotal, 
+                details: p.items.map(i => `${i.productName} x${i.quantity}`).join(', ')
+            }));
+            paymentsToSupplier.forEach(py => transactions.push({
+                date: py.date,
+                description: `Payment Made (ID: ${py.id}) - ${py.paymentMethod}`,
+                debit: py.amount, 
+                credit: 0,
+                details: py.notes || ''
+            }));
+            if (supplier.openingBalance !== 0) {
+                 transactions.push({
+                    date: 'Initial',
+                    description: 'Opening Balance',
+                    debit: supplier.openingBalance < 0 ? -supplier.openingBalance : 0, 
+                    credit: supplier.openingBalance > 0 ? supplier.openingBalance : 0, 
+                    details: ''
+                });
+            }
+            transactions.sort((a, b) => {
+                 const dateA = new Date(a.date === 'Initial' ? 0 : a.date);
+                 const dateB = new Date(b.date === 'Initial' ? 0 : b.date);
+                 if (dateA < dateB) return -1;
+                 if (dateA > dateB) return 1;
+                 if (a.description === 'Opening Balance') return -1;
+                 if (b.description === 'Opening Balance') return 1;
+                 if (a.credit > 0 && b.debit > 0) return -1; 
+                 if (a.debit > 0 && b.credit > 0) return 1; 
+                 return 0;
+            });
+            let runningBalance = 0; 
+            const khataRows = transactions.map(t => {
+                 if(t.description === 'Opening Balance'){
+                    runningBalance = t.credit - t.debit;
+                } else {
+                    runningBalance += t.credit - t.debit;
+                }
+                return `<tr>
+                    <td>${t.date}</td>
+                    <td>${t.description}</td>
+                    <td>${t.details}</td>
+                    <td style="text-align:right;">${t.debit > 0 ? t.debit.toFixed(2) : '-'}</td>
+                    <td style="text-align:right;">${t.credit > 0 ? t.credit.toFixed(2) : '-'}</td>
+                    <td style="text-align:right;">${runningBalance.toFixed(2)}</td>
+                </tr>`;
+            }).join('');
+            mainContent.innerHTML = `
+                <div class="content-header">
+                    <h2 id="supplierKhataTitle" data-supplier-id="${supplierId}">Khata for ${supplier.name}</h2>
+                    <button class="btn btn-secondary" onclick="navigateTo('suppliers')">Back to Suppliers</button>
+                </div>
+                <p><strong>Current Balance (Calculated from Khata): Rs. ${runningBalance.toFixed(2)}</strong></p>
+                <p><strong>Stored Current Balance: Rs. ${supplier.currentBalance.toFixed(2)}</strong> (Positive means we owe supplier)</p>
+                <table>
+                    <thead><tr><th>Date</th><th>Description</th><th>Details</th><th>Debit (Payment Made)</th><th>Credit (Purchase/Owed)</th><th>Balance (Rs.)</th></tr></thead>
+                    <tbody>${khataRows}</tbody>
+                </table>
+            `;
+        }
+
+        async function renderDayBookReport(targetDivId = 'daybook') {
+            const targetDiv = document.getElementById(targetDivId);
+            if(!targetDiv) return;
+            const today = getTodayDate();
+            targetDiv.innerHTML = `<h3>Day Book</h3>
+                                   <input type="date" id="daybookDate" value="${today}">
+                                   <button id="viewDayBookBtn" class="btn btn-info btn-sm">View</button>
+                                   <div id="daybookContent"></div>`;
+            const dateInput = targetDiv.querySelector('#daybookDate');
+            const viewBtn = targetDiv.querySelector('#viewDayBookBtn');
+            async function loadDayBookForDate(date) {
+                const sales = await getAllItems(STORE_SALES);
+                const expenses = await getAllItems(STORE_EXPENSES);
+                const payments = await getAllItems(STORE_PAYMENTS);
+                const otherIncomes = await getAllItems(STORE_OTHER_INCOMES); 
+
+                let entries = [];
+                sales.filter(s => s.date === date && s.amountPaid > 0).forEach(s => {
+                    entries.push({ time: s.id, type: 'Sale Receipt', description: `Sale #${s.id} to ${s.customerName || 'Walk-in'}`, income: s.amountPaid, expense: 0, sortKey: `A-${s.id}` });
+                });
+                otherIncomes.filter(oi => oi.date === date).forEach(oi => { 
+                    entries.push({ time: oi.id, type: 'Other Income', description: `${oi.source}: ${oi.description}`, income: oi.amount, expense: 0, sortKey: `B-${oi.id}` });
+                });
+                expenses.filter(e => e.date === date).forEach(e => {
+                    entries.push({ time: e.id, type: 'Expense', description: `${e.category}: ${e.description}`, income: 0, expense: e.amount, sortKey: `C-${e.id}` });
+                });
+                
+                const customerPaymentPromises = payments.filter(p => p.date === date && p.type === 'customer').map(async p => {
+                    const customer = await getItem(STORE_CUSTOMERS, p.relatedId);
+                    entries.push({ time: p.id, type: 'Customer Payment In', description: `From ${customer?.name || 'Unknown Customer'}`, income: p.amount, expense: 0, sortKey: `D-${p.id}` });
+                });
+                const supplierPaymentPromises = payments.filter(p => p.date === date && p.type === 'supplier').map(async p => {
+                    const supplier = await getItem(STORE_SUPPLIERS, p.relatedId);
+                    entries.push({ time: p.id, type: 'Supplier Payment Out', description: `To ${supplier?.name || 'Unknown Supplier'}`, income: 0, expense: p.amount, sortKey: `E-${p.id}` });
+                });
+                
+                await Promise.all([...customerPaymentPromises, ...supplierPaymentPromises]); 
+
+                entries.sort((a,b) => a.sortKey.localeCompare(b.sortKey)); 
+
+                const daybookContentDiv = targetDiv.querySelector('#daybookContent');
+                if (entries.length === 0) {
+                    daybookContentDiv.innerHTML = `<p>No cash/bank transactions recorded for ${date}.</p>`;
+                    return;
+                }
+                
+                let totalIncome = entries.reduce((sum, e) => sum + e.income, 0);
+                let totalPaymentsOut = entries.reduce((sum, e) => sum + e.expense, 0);
+
+                daybookContentDiv.innerHTML = `
+                    <table>
+                        <thead><tr><th>Type</th><th>Description</th><th>Income (Rs.)</th><th>Expense (Rs.)</th></tr></thead>
+                        <tbody>
+                            ${entries.map(e => `<tr><td>${e.type}</td><td>${e.description}</td><td style="text-align:right;">${e.income > 0 ? e.income.toFixed(2) : '-'}</td><td style="text-align:right;">${e.expense > 0 ? e.expense.toFixed(2) : '-'}</td></tr>`).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr><td colspan="2" style="text-align:right; font-weight:bold;">Total</td><td style="text-align:right; font-weight:bold;">${totalIncome.toFixed(2)}</td><td style="text-align:right; font-weight:bold;">${totalPaymentsOut.toFixed(2)}</td></tr>
+                            <tr><td colspan="2" style="text-align:right; font-weight:bold;">Net Cash Flow</td><td colspan="2" style="text-align:center; font-weight:bold;">${(totalIncome - totalPaymentsOut).toFixed(2)}</td></tr>
+                        </tfoot>
+                    </table>
+                `;
+            }
+            viewBtn.onclick = () => loadDayBookForDate(dateInput.value);
+            await loadDayBookForDate(today); 
+        }
+        
+        async function renderProfitLossReport(targetDivId = 'profitloss') {
+             const targetDiv = document.getElementById(targetDivId);
+             if(!targetDiv) return;
+             targetDiv.innerHTML = `
+                <h3>Profit & Loss Statement (Accrual Basis)</h3>
+                <div style="display:flex; gap: 10px; margin-bottom:10px;">
+                    <input type="date" id="plStartDate" value="${new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0,10)}">
+                    <input type="date" id="plEndDate" value="${getTodayDate()}">
+                    <button id="viewPLBtn" class="btn btn-info btn-sm">Generate Report</button>
+                </div>
+                <div id="plContent">Select dates and click "Generate Report".</div>
+             `;
+            targetDiv.querySelector('#viewPLBtn').onclick = async () => {
+                const startDate = document.getElementById('plStartDate').value;
+                const endDate = document.getElementById('plEndDate').value;
+                if (!startDate || !endDate || new Date(startDate) > new Date(endDate)) {
+                    alert('Please select valid start and end dates.');
+                    return;
+                }
+                const sales = await getAllItems(STORE_SALES);
+                const expenses = await getAllItems(STORE_EXPENSES);
+                const otherIncomes = await getAllItems(STORE_OTHER_INCOMES); 
+                
+                const relevantSales = sales.filter(s => s.date >= startDate && s.date <= endDate);
+                const relevantExpenses = expenses.filter(e => e.date >= startDate && e.date <= endDate);
+                const relevantOtherIncomes = otherIncomes.filter(oi => oi.date >= startDate && oi.date <= endDate); 
+
+                const totalSalesRevenue = relevantSales.reduce((sum, s) => sum + s.grandTotal, 0);
+                const totalOtherRevenue = relevantOtherIncomes.reduce((sum, oi) => sum + oi.amount, 0); 
+                const totalRevenue = totalSalesRevenue + totalOtherRevenue;
+                
+                let calculatedCOGS = 0;
+                for (const sale of relevantSales) {
+                    for (const item of sale.items) {
+                        const product = await getItem(STORE_PRODUCTS, item.productId);
+                        calculatedCOGS += item.quantity * (product?.purchasePrice || 0); 
+                    }
+                }
+                const grossProfit = totalRevenue - calculatedCOGS;
+                const totalOperatingExpenses = relevantExpenses.reduce((sum, e) => sum + e.amount, 0);
+                const netProfit = grossProfit - totalOperatingExpenses;
+
+                document.getElementById('plContent').innerHTML = `
+                    <h4>Report for ${startDate} to ${endDate}</h4>
+                    <table style="width:auto; min-width:500px;">
+                        <tr><td style="font-weight:bold;">Revenue:</td><td></td></tr>
+                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Revenue</td><td style="text-align:right;">Rs. ${totalSalesRevenue.toFixed(2)}</td></tr>
+                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Other Income</td><td style="text-align:right;">Rs. ${totalOtherRevenue.toFixed(2)}</td></tr>
+                        <tr><td style="font-weight:bold;">Total Revenue</td><td style="text-align:right; font-weight:bold;">Rs. ${totalRevenue.toFixed(2)}</td></tr>
+                        <tr><td>Cost of Goods Sold (COGS)</td><td style="text-align:right;">(Rs. ${calculatedCOGS.toFixed(2)})</td></tr>
+                        <tr><td style="font-weight:bold;">Gross Profit</td><td style="text-align:right; font-weight:bold;">Rs. ${grossProfit.toFixed(2)}</td></tr>
+                        <tr><td colspan="2">&nbsp;</td></tr>
+                        <tr><td style="font-weight:bold;">Operating Expenses:</td><td></td></tr>
+                        ${relevantExpenses.length > 0 ? relevantExpenses.map(e => `<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;${e.category}: ${e.description || ''}</td><td style="text-align:right;">(Rs. ${e.amount.toFixed(2)})</td></tr>`).join('') : '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;No operating expenses in this period.</td><td></td></tr>'}
+                        <tr><td style="font-weight:bold;">Total Operating Expenses</td><td style="text-align:right; font-weight:bold;">(Rs. ${totalOperatingExpenses.toFixed(2)})</td></tr>
+                        <tr><td colspan="2">&nbsp;</td></tr>
+                        <tr><td style="font-weight:bold; font-size:1.2em">Net Profit/Loss</td><td style="text-align:right; font-weight:bold; font-size:1.2em">Rs. ${netProfit.toFixed(2)}</td></tr>
+                    </table>
+                `;
+            };
+        }
+        
+        async function renderStockLevelsReport(targetDivId = 'stocklevels') {
+            const targetDiv = document.getElementById(targetDivId);
+            if(!targetDiv) return;
+            const products = await getAllItems(STORE_PRODUCTS);
+            targetDiv.innerHTML = `
+                <h3>Current Stock Levels</h3>
+                <table id="stockLevelsTable"></table>
+            `;
+            const stockTable = document.getElementById('stockLevelsTable');
+            stockTable.innerHTML = `<thead><tr><th>Product Name</th><th>Current Stock</th><th>Unit</th><th>Purchase Price</th><th>Sale Price</th><th>Min. Stock Level</th><th>Status</th></tr></thead><tbody></tbody>`;
+            const tbody = stockTable.querySelector('tbody');
+            products.forEach(p => {
+                let status = '';
+                if (p.minStockLevel > 0 && p.stock < p.minStockLevel) status = `<span style="color:var(--danger-color);">Low Stock</span>`;
+                else if (p.minStockLevel > 0 && p.stock === p.minStockLevel) status = `<span style="color:var(--secondary-color); font-weight:bold;">Reorder Point</span>`;
+                else if (p.minStockLevel > 0 && p.stock < p.minStockLevel * 1.2) status = `<span style="color:var(--secondary-color);">Nearing Reorder</span>`;
+                else status = 'Sufficient';
+                const row = tbody.insertRow();
+                row.insertCell().textContent = p.name;
+                row.insertCell().textContent = p.stock;
+                row.insertCell().textContent = p.unit || 'N/A';
+                row.insertCell().textContent = `Rs. ${p.purchasePrice.toFixed(2)}`;
+                row.insertCell().textContent = `Rs. ${p.salePrice.toFixed(2)}`;
+                row.insertCell().textContent = p.minStockLevel > 0 ? p.minStockLevel : 'N/A';
+                row.insertCell().innerHTML = status;
+            });
+        }
+
+        async function renderCustomerLedgersList(targetDivId = 'customerledgers') {
+            const targetDiv = document.getElementById(targetDivId);
+            if(!targetDiv) return;
+            const customers = await getAllItems(STORE_CUSTOMERS);
+            targetDiv.innerHTML = `
+                <h3>Customer Ledgers</h3>
+                <p>Select a customer to view their Khata (Ledger).</p>
+                <ul>${customers.map(c => `<li><a href="#" onclick="event.preventDefault(); renderCustomerKhata(${c.id})">${c.name} (Balance: Rs. ${c.currentBalance.toFixed(2)})</a></li>`).join('')}</ul>
+            `;
+             if (customers.length === 0) {
+                targetDiv.innerHTML += "<p>No customers found. Add customers first.</p>";
+            }
+        }
+        
+        async function renderSupplierLedgersList(targetDivId = 'supplierledgers') {
+            const targetDiv = document.getElementById(targetDivId);
+            if(!targetDiv) return;
+            const suppliers = await getAllItems(STORE_SUPPLIERS);
+            targetDiv.innerHTML = `
+                <h3>Supplier Ledgers</h3>
+                <p>Select a supplier to view their Khata (Ledger).</p>
+                <ul>${suppliers.map(s => `<li><a href="#" onclick="event.preventDefault(); renderSupplierKhata(${s.id})">${s.name} (Balance: Rs. ${s.currentBalance.toFixed(2)})</a></li>`).join('')}</ul>
+            `;
+             if (suppliers.length === 0) {
+                targetDiv.innerHTML += "<p>No suppliers found. Add suppliers first.</p>";
+            }
+        }
+
+        async function renderSettingsPage() {
+            const shopNameSetting = await getItem(STORE_SETTINGS, 'shopName');
+            const shopContactSetting = await getItem(STORE_SETTINGS, 'shopContact');
+            const shopAddressSetting = await getItem(STORE_SETTINGS, 'shopAddress');
+            const shopName = shopNameSetting ? shopNameSetting.value : '';
+            const shopContact = shopContactSetting ? shopContactSetting.value : '';
+            const shopAddress = shopAddressSetting ? shopAddressSetting.value : '';
+            mainContent.innerHTML = `
+                <div class="content-header"><h2>Settings</h2></div>
+                <form id="settingsForm">
+                    <h3>Shop Information</h3>
+                    <div class="form-group">
+                        <label for="shopName">Shop Name</label>
+                        <input type="text" id="shopNameInput" name="shopName" value="${shopName}">
+                    </div>
+                    <div class="form-group">
+                        <label for="shopContact">Shop Contact (Phone/Email)</label>
+                        <input type="text" id="shopContactInput" name="shopContact" value="${shopContact}">
+                    </div>
+                    <div class="form-group">
+                        <label for="shopAddress">Shop Address</label>
+                        <textarea id="shopAddressInput" name="shopAddress">${shopAddress}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </form>
+                <hr style="margin: 30px 0;">
+                <h3>Data Management</h3>
+                <div style="display:flex; gap: 10px;">
+                    <button id="backupDataBtn" class="btn btn-info">Backup Data</button>
+                    <div>
+                        <label for="restoreFile" class="btn btn-secondary" style="cursor:pointer;">Restore Data</label>
+                        <input type="file" id="restoreFile" accept=".json" style="display:none;">
+                    </div>
+                </div>
+            `;
+            document.getElementById('settingsForm').onsubmit = saveShopSettings;
+            document.getElementById('backupDataBtn').onclick = backupData;
+            document.getElementById('restoreFile').onchange = handleRestoreFile;
+        }
+
+        async function saveShopSettings(event) {
+            event.preventDefault();
+            const shopName = document.getElementById('shopNameInput').value;
+            const shopContact = document.getElementById('shopContactInput').value;
+            const shopAddress = document.getElementById('shopAddressInput').value;
+            try {
+                await updateItem(STORE_SETTINGS, { key: 'shopName', value: shopName });
+                await updateItem(STORE_SETTINGS, { key: 'shopContact', value: shopContact });
+                await updateItem(STORE_SETTINGS, { key: 'shopAddress', value: shopAddress });
+                alert('Settings saved successfully!');
+                const sidebarTitle = document.querySelector('#sidebar h1');
+                if (sidebarTitle && shopName) sidebarTitle.textContent = shopName;
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                alert('Failed to save settings.');
+            }
+        }
+
+        async function backupData() {
+            if (!confirm("This will download a JSON file with all your data. Proceed?")) return;
+            try {
+                const backup = {};
+                const storesToBackup = [STORE_PRODUCTS, STORE_CUSTOMERS, STORE_SUPPLIERS, STORE_SALES, STORE_PURCHASES, STORE_EXPENSES, STORE_OTHER_INCOMES, STORE_PAYMENTS, STORE_SETTINGS];
+                for (const storeName of storesToBackup) {
+                    backup[storeName] = await getAllItems(storeName);
+                }
+                const jsonString = JSON.stringify(backup, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `dukan_hisab_kitab_backup_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('Backup successful! Check your downloads.');
+            } catch (error) {
+                console.error('Backup failed:', error);
+                alert(`Backup failed: ${error.message}`);
+            }
+        }
+        
+        function handleRestoreFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!confirm("Restoring data will ERASE all current data and replace it with data from the backup file. This action CANNOT BE UNDONE. Are you absolutely sure?")) {
+                event.target.value = null; 
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    const storesToRestore = [STORE_PRODUCTS, STORE_CUSTOMERS, STORE_SUPPLIERS, STORE_SALES, STORE_PURCHASES, STORE_EXPENSES, STORE_OTHER_INCOMES, STORE_PAYMENTS, STORE_SETTINGS];
+                    const transaction = db.transaction(storesToRestore, 'readwrite');
+                    transaction.onerror = (event) => {
+                        console.error('Transaction error during restore:', event.target.error);
+                        alert(`Restore failed during transaction: ${event.target.error}`);
+                    };
+                    transaction.oncomplete = () => {
+                        alert('Data restored successfully! Please refresh the page.');
+                        navigateTo('dashboard'); 
+                        location.reload();
+                    };
+                    for (const storeName of storesToRestore) {
+                        const store = transaction.objectStore(storeName);
+                        await new Promise((res, rej) => { 
+                           const clearReq = store.clear();
+                           clearReq.onsuccess = res;
+                           clearReq.onerror = (err) => { console.error(`Error clearing ${storeName}`, err); rej(err);};
+                        });
+                        if (backupData[storeName] && Array.isArray(backupData[storeName])) {
+                            for (const item of backupData[storeName]) {
+                                store.add(item).onerror = (errEvent) => {
+                                    console.warn(`Could not add item to ${storeName}: `, item, errEvent.target.error);
+                                };
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Restore failed:', error);
+                    alert(`Restore failed: ${error.message}. Ensure the file is a valid backup.`);
+                } finally {
+                     event.target.value = null; 
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        function navigateTo(page) {
+            navLinks.forEach(link => link.classList.remove('active'));
+            const activeLink = document.querySelector(`.nav-link[data-page="${page}"]`);
+            if (activeLink) activeLink.classList.add('active');
+
+            saleFormItems = []; 
+            purchaseFormItems = []; 
+
+            switch (page) {
+                case 'dashboard': renderDashboard(); break;
+                case 'products': renderProductsPage(); break;
+                case 'customers': renderCustomersPage(); break;
+                case 'suppliers': renderSuppliersPage(); break;
+                case 'sales': renderSalesPage(); break;
+                case 'purchases': renderPurchasesPage(); break;
+                case 'otherIncomes': renderOtherIncomesPage(); break; 
+                case 'expenses': renderExpensesPage(); break;
+                case 'reports': renderReportsPage(); break;
+                case 'settings': renderSettingsPage(); break;
+                default: renderDashboard();
+            }
+        }
+        
+        window.navigateTo = navigateTo; 
+        window.renderCustomerKhata = renderCustomerKhata;
+        window.renderSupplierKhata = renderSupplierKhata;
+
+        async function addSampleData1() {
+            function getRandomPastDate1(daysBackMax = 30) {
+                const today = new Date("2024-01-15T12:00:00Z"); 
+                const pastDate = new Date(today);
+                pastDate.setDate(today.getDate() - Math.floor(Math.random() * daysBackMax));
+                return pastDate.toISOString().slice(0, 10);
+            }
+
+            const sampleProductsData1 = [
+                { name: "Sample Rice - Basmati 1kg", description: "Premium quality Basmati rice", purchasePrice: 150, salePrice: 180, stock: 100, unit: "kg", minStockLevel: 10 },
+                { name: "Sample Sugar - Refined 1kg", description: "Fine refined sugar", purchasePrice: 80, salePrice: 95, stock: 200, unit: "kg", minStockLevel: 20 },
+                { name: "Sample Tea Leaves - Green 250g", description: "Organic green tea leaves", purchasePrice: 200, salePrice: 250, stock: 50, unit: "pkt", minStockLevel: 5 },
+                { name: "Sample Cooking Oil - Soy 1L", description: "Soybean cooking oil", purchasePrice: 220, salePrice: 240, stock: 80, unit: "ltr", minStockLevel: 10 },
+                { name: "Sample Biscuits - Cream Delight", description: "Cream filled biscuits pack", purchasePrice: 40, salePrice: 50, stock: 150, unit: "pcs", minStockLevel: 15 }
+            ];
+            let addedProductIds1 = [];
+
+            const sampleCustomersData1 = [
+                { name: "Sample Customer Ali Khan", phone: "0300-1234567", email: "ali.khan@example.com", address: "House 1, Street 2, Sample City", openingBalance: 0, currentBalance: 0 },
+                { name: "Sample Customer Fatima Bibi", phone: "0333-9876543", email: "fatima.b@example.com", address: "Apt 3B, Sample Heights", openingBalance: 500, currentBalance: 500 },
+                { name: "Sample Customer WalkIn Special", phone: "", email: "", address: "", openingBalance: 0, currentBalance: 0 }
+            ];
+            let addedCustomerIds1 = [];
+
+            const sampleSuppliersData1 = [
+                { name: "Sample Supplier Goods Co.", phone: "0311-1122333", email: "sales@goodsco.example.com", address: "Industrial Area, Sample Town", openingBalance: 0, currentBalance: 0 },
+                { name: "Sample Supplier Farm Fresh Ltd.", phone: "0322-4455666", email: "orders@farmfresh.example.com", address: "Rural Route 5, Sample District", openingBalance: 1000, currentBalance: 1000 }
+            ];
+            let addedSupplierIds1 = [];
+
+            async function generateInitialEntities1() {
+                for (const pData of sampleProductsData1) {
+                    try {
+                        const existingProducts = await getAllItems(STORE_PRODUCTS);
+                        const existing = existingProducts.find(p => p.name === pData.name);
+                        if (!existing) {
+                            const id = await addItem(STORE_PRODUCTS, pData);
+                            addedProductIds1.push({ ...pData, id });
+                        } else {
+                            addedProductIds1.push(existing);
+                        }
+                    } catch (e) { console.warn("Sample data product add error", e); }
+                }
+                if (addedProductIds1.length === 0 && sampleProductsData1.length > 0) addedProductIds1 = await getAllItems(STORE_PRODUCTS);
+
+
+                for (const cData of sampleCustomersData1) {
+                    try {
+                        const existingCustomers = await getAllItems(STORE_CUSTOMERS);
+                        const existing = existingCustomers.find(c => c.name === cData.name);
+                        if (!existing) {
+                            const id = await addItem(STORE_CUSTOMERS, cData);
+                            addedCustomerIds1.push({ ...cData, id });
+                        } else {
+                            addedCustomerIds1.push(existing);
+                        }
+                    } catch (e) { console.warn("Sample data customer add error", e); }
+                }
+                 if (addedCustomerIds1.length === 0 && sampleCustomersData1.length > 0) addedCustomerIds1 = await getAllItems(STORE_CUSTOMERS);
+
+
+                for (const sData of sampleSuppliersData1) {
+                    try {
+                        const existingSuppliers = await getAllItems(STORE_SUPPLIERS);
+                        const existing = existingSuppliers.find(s => s.name === sData.name);
+                        if (!existing) {
+                            const id = await addItem(STORE_SUPPLIERS, sData);
+                            addedSupplierIds1.push({ ...sData, id });
+                        } else {
+                            addedSupplierIds1.push(existing);
+                        }
+                    } catch (e) { console.warn("Sample data supplier add error", e); }
+                }
+                if (addedSupplierIds1.length === 0 && sampleSuppliersData1.length > 0) addedSupplierIds1 = await getAllItems(STORE_SUPPLIERS);
+            }
+
+            async function generateSales1() {
+                if (addedProductIds1.length === 0 || addedCustomerIds1.length === 0) return;
+                const salesToCreate = 7;
+                for (let i = 0; i < salesToCreate; i++) {
+                    try {
+                        const customer = addedCustomerIds1[Math.floor(Math.random() * addedCustomerIds1.length)];
+                        const numItems = Math.floor(Math.random() * 2) + 1;
+                        let saleItems = [];
+                        let subTotal = 0;
+
+                        for (let j = 0; j < numItems; j++) {
+                            const productRef = addedProductIds1[Math.floor(Math.random() * addedProductIds1.length)];
+                            const quantity = Math.floor(Math.random() * 3) + 1;
+                            const dbProduct = await getItem(STORE_PRODUCTS, productRef.id);
+                            if (!dbProduct || dbProduct.stock < quantity) continue;
+
+                            saleItems.push({ productId: dbProduct.id, productName: dbProduct.name, quantity: quantity, unitPrice: dbProduct.salePrice, totalPrice: dbProduct.salePrice * quantity });
+                            subTotal += dbProduct.salePrice * quantity;
+                            dbProduct.stock -= quantity;
+                            await updateItem(STORE_PRODUCTS, dbProduct);
+                        }
+                        if(saleItems.length === 0) continue;
+
+                        const discount = Math.random() > 0.8 ? Math.floor(Math.random() * (subTotal * 0.1)) : 0;
+                        const tax = 0;
+                        const grandTotal = subTotal - discount + tax;
+                        const amountPaid = Math.random() > 0.3 ? grandTotal : Math.floor(grandTotal * (Math.random() * 0.5 + 0.5));
+                        const amountDue = grandTotal - amountPaid;
+
+                        const saleData = {date: getRandomPastDate1(), customerId: customer.id, customerName: customer.name, items: saleItems, subTotal, discount, tax, grandTotal, amountPaid, amountDue, paymentMethod: amountDue > 0 ? 'Credit' : (Math.random() > 0.5 ? 'Cash' : 'Card'), notes: `Sample Sale #${i+1}`};
+                        await addItem(STORE_SALES, saleData);
+                        
+                        if (customer.id && amountDue > 0) {
+                            const dbCustomer = await getItem(STORE_CUSTOMERS, customer.id);
+                            if(dbCustomer) {
+                                dbCustomer.currentBalance += amountDue;
+                                await updateItem(STORE_CUSTOMERS, dbCustomer);
+                            }
+                        }
+                    } catch (e) { console.error(`SampleDB: Error generating sale ${i+1}:`, e); }
+                }
+            }
+            
+            async function generatePurchases1() {
+                if (addedProductIds1.length === 0 || addedSupplierIds1.length === 0) return;
+                const purchasesToCreate = 4;
+                for (let i = 0; i < purchasesToCreate; i++) {
+                    try {
+                        const supplier = addedSupplierIds1[Math.floor(Math.random() * addedSupplierIds1.length)];
+                        const numItems = Math.floor(Math.random() * 2) + 1;
+                        let purchaseItems = [];
+                        let subTotal = 0;
+
+                        for (let j = 0; j < numItems; j++) {
+                            const productRef = addedProductIds1[Math.floor(Math.random() * addedProductIds1.length)];
+                            const quantity = Math.floor(Math.random() * 10) + 5;
+                            const dbProduct = await getItem(STORE_PRODUCTS, productRef.id);
+                            if(!dbProduct) continue;
+                            
+                            purchaseItems.push({ productId: dbProduct.id, productName: dbProduct.name, quantity: quantity, unitPrice: dbProduct.purchasePrice, totalPrice: dbProduct.purchasePrice * quantity });
+                            subTotal += dbProduct.purchasePrice * quantity;
+                            dbProduct.stock += quantity;
+                            await updateItem(STORE_PRODUCTS, dbProduct);
+                        }
+                        if(purchaseItems.length === 0) continue;
+
+                        const discount = Math.random() > 0.9 ? Math.floor(Math.random() * (subTotal * 0.05)) : 0;
+                        const tax = 0;
+                        const grandTotal = subTotal - discount + tax;
+                        const amountPaid = Math.random() > 0.4 ? grandTotal : Math.floor(grandTotal * (Math.random() * 0.4 + 0.3));
+                        const amountDue = grandTotal - amountPaid;
+
+                        const purchaseData = {date: getRandomPastDate1(), supplierId: supplier.id, supplierName: supplier.name, items: purchaseItems, subTotal, discount, tax, grandTotal, amountPaid, amountDue, paymentMethod: amountDue > 0 ? 'Credit' : (Math.random() > 0.5 ? 'Cash' : 'Bank Transfer'), notes: `Sample Purchase #${i+1}`};
+                        await addItem(STORE_PURCHASES, purchaseData);
+
+                        if (supplier.id && amountDue > 0) {
+                            const dbSupplier = await getItem(STORE_SUPPLIERS, supplier.id);
+                            if(dbSupplier){
+                                dbSupplier.currentBalance += amountDue;
+                                await updateItem(STORE_SUPPLIERS, dbSupplier);
+                            }
+                        }
+                    } catch (e) { console.error(`SampleDB: Error generating purchase ${i+1}:`, e); }
+                }
+            }
+
+            async function generateOtherIncomes1() {
+                const incomeSources = ["Rent from Sublet Kiosk", "Commission on Utility Bills", "Sale of Old Newspapers", "Interest on Bank Deposit"];
+                const otherIncomesToCreate = 4;
+                for (let i = 0; i < otherIncomesToCreate; i++) {
+                    try {
+                        const incomeData = {date: getRandomPastDate1(), source: incomeSources[i % incomeSources.length], description: `Sample miscellaneous income #${i+1}`, amount: Math.floor(Math.random() * 2000) + 500, paymentMethod: Math.random() > 0.5 ? 'Cash' : 'Bank Transfer'};
+                        await addItem(STORE_OTHER_INCOMES, incomeData);
+                    } catch (e) { console.warn("Sample data other income add error", e); }
+                }
+            }
+
+            async function generateExpenses1() {
+                const expenseCategories = ["Shop Rent", "Electricity Bill", "Staff Refreshments", "Cleaning Supplies", "Delivery Charges"];
+                const expensesToCreate = 5;
+                for (let i = 0; i < expensesToCreate; i++) {
+                    try {
+                        const expenseData = {date: getRandomPastDate1(), category: expenseCategories[i % expenseCategories.length], description: `Sample expense #${i+1}`, amount: Math.floor(Math.random() * 1000) + 200, paymentMethod: Math.random() > 0.5 ? 'Cash' : 'Bank Transfer', paidTo: `Sample Vendor ${String.fromCharCode(65 + i)}`};
+                        await addItem(STORE_EXPENSES, expenseData);
+                    } catch (e) { console.warn("Sample data expense add error", e); }
+                }
+            }
+            
+            try {
+                const existingProducts = await getAllItems(STORE_PRODUCTS);
+                let allSampleProductsExist = true;
+                if (existingProducts.length >= sampleProductsData1.length) {
+                    for(const sp of sampleProductsData1){ if(!existingProducts.find(p => p.name === sp.name)){ allSampleProductsExist = false; break; } }
+                } else {
+                    allSampleProductsExist = false;
+                }
+
+                if(allSampleProductsExist){
+                     console.log("SampleDB: All specific sample products seem to exist. Aborting sample data generation.");
+                     alert("Sample data (products) appears to exist already. No new sample data added.");
+                     return; 
+                }
+                await generateInitialEntities1();
+                await generateSales1();
+                await generatePurchases1();
+                await generateOtherIncomes1();
+                await generateExpenses1();
+                alert("Sample data has been added. Please refresh the application page if needed.");
+            } catch (error) {
+                console.error("SampleDB: Fatal error during sample data generation:", error);
+                alert("SampleDB: An error occurred while adding sample data: " + error.message);
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initDB();
+                
+                const shopNameSetting = await getItem(STORE_SETTINGS, 'shopName');
+                const sidebarTitle = document.querySelector('#sidebar h1');
+                if (sidebarTitle && shopNameSetting && shopNameSetting.value) {
+                    sidebarTitle.textContent = shopNameSetting.value;
+                }
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        navigateTo(link.dataset.page);
+                    });
+                });
+                
+                const sampleDataRunCheck = await getItem(STORE_SETTINGS, 'sampleDataHasRun');
+                if (!sampleDataRunCheck || !sampleDataRunCheck.value) {
+                    await addSampleData1();
+                    await updateItem(STORE_SETTINGS, { key: 'sampleDataHasRun', value: true });
+                }
+                navigateTo('dashboard'); 
+            } catch (error) {
+                mainContent.innerHTML = `<p style="color:red;">Failed to initialize the application. Database could not be opened. Error: ${error}</p>`;
+                console.error("App initialization error:", error);
+            }
+        });
+
+    })();
+    </script>
+</body>
+</html>

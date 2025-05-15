@@ -1,0 +1,3332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dukan Hisab Kitab - Yasin Ullah</title>
+    <style>
+        /* Author: Yasin Ullah (Pakistani) */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white-color: #fff;
+            --border-color: #dee2e6;
+            --bg-light: #e9ecef;
+            --text-dark: #212529;
+            --text-light: #f8f9fa;
+            --font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --border-radius: 0.25rem;
+            --padding-base: 1rem;
+            --margin-base: 1rem;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--padding-base);
+            width: 100%;
+        }
+
+        header {
+            background-color: var(--dark-color);
+            color: var(--text-light);
+            padding: var(--padding-base) 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        nav {
+            background-color: var(--secondary-color);
+            padding: 0.5rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 0.75rem;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            display: block;
+            transition: background-color 0.3s ease;
+            border-radius: var(--border-radius);
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            background-color: var(--primary-color);
+        }
+
+        main {
+            flex-grow: 1;
+            padding: var(--padding-base) 0;
+        }
+
+        .section {
+            display: none;
+            background-color: var(--white-color);
+            padding: var(--padding-base) * 1.5;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: var(--margin-base);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            margin-bottom: var(--margin-base) * 1.5;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--margin-base);
+        }
+
+        .dashboard-card {
+            background-color: var(--light-color);
+            padding: var(--padding-base);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .dashboard-card h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        .dashboard-card p {
+            margin-bottom: 0;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .dashboard-card.income p { color: var(--success-color); }
+        .dashboard-card.expense p { color: var(--danger-color); }
+        .dashboard-card.stock p { color: var(--info-color); }
+        .dashboard-card.receivable p { color: var(--warning-color); }
+        .dashboard-card.payable p { color: var(--danger-color); }
+        .dashboard-card.profit p { color: var(--success-color); }
+         .dashboard-card.profit.danger p { color: var(--danger-color); }
+
+
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            color: var(--white-color);
+            text-align: center;
+            vertical-align: middle;
+            user-select: none;
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: var(--border-radius);
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .btn-warning {
+             background-color: var(--warning-color);
+             border-color: var(--warning-color);
+             color: var(--dark-color);
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+
+         .btn-info {
+             background-color: var(--info-color);
+             border-color: var(--info-color);
+             color: var(--white-color);
+         }
+         .btn-info:hover {
+             background-color: #138496;
+             border-color: #117a8b;
+         }
+
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--margin-base);
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--dark-color);
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--light-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white-color);
+            margin: auto;
+            padding: var(--padding-base) * 1.5;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close-btn {
+            color: var(--secondary-color);
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: var(--dark-color);
+            text-decoration: none;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        form input[type="text"],
+        form input[type="number"],
+        form input[type="date"],
+        form input[type="email"],
+        form input[type="tel"],
+        form select,
+        form textarea {
+            width: calc(100% - 1.5rem); /* Account for padding */
+            padding: 0.75rem;
+            margin-bottom: var(--margin-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        form button {
+            margin-top: var(--margin-base);
+        }
+
+        .form-group {
+            margin-bottom: var(--margin-base);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .alert {
+            padding: 0.75rem var(--padding-base);
+            margin-bottom: var(--margin-base);
+            border: 1px solid transparent;
+            border-radius: var(--border-radius);
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+         .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+         }
+
+
+        #salesItemsContainer, #purchaseItemsContainer {
+            border: 1px solid var(--border-color);
+            padding: var(--padding-base);
+            margin-bottom: var(--margin-base);
+            border-radius: var(--border-radius);
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+         .item-row:last-child {
+             border-bottom: none;
+             margin-bottom: 0;
+             padding-bottom: 0;
+         }
+
+        .item-row input, .item-row select {
+            margin-bottom: 0;
+            padding: 0.5rem;
+            width: auto; /* Override form input width */
+        }
+
+        .item-row .btn-danger {
+            padding: 0.5rem;
+            height: 100%; /* Match input height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-filter {
+            display: flex;
+            gap: var(--margin-base);
+            margin-bottom: var(--margin-base);
+            align-items: flex-end;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .report-filter .form-group {
+            flex: 1; /* Allow form groups to grow */
+            min-width: 150px; /* Minimum width for each group */
+        }
+
+
+        .report-filter label {
+            margin-bottom: 0.25rem;
+            font-weight: normal;
+        }
+
+        .report-filter input, .report-filter select {
+            margin-bottom: 0;
+            width: 100%; /* Make inputs fill container */
+            padding: 0.5rem;
+        }
+         .report-filter button {
+             padding: 0.5rem 1rem;
+             height: fit-content; /* Adjust button height */
+         }
+
+
+        .report-results {
+            margin-top: var(--margin-base);
+        }
+
+        .report-summary {
+            margin-bottom: var(--margin-base);
+            padding: var(--padding-base);
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .report-summary p {
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .report-summary p strong {
+            color: var(--primary-color);
+        }
+
+        #backupRestoreSection input[type="file"] {
+            margin-bottom: var(--margin-base);
+        }
+
+        footer {
+            text-align: center;
+            padding: var(--padding-base) 0;
+            margin-top: var(--margin-base);
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin: 0.25rem 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            nav ul li a {
+                padding: 0.75rem 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .item-row {
+                 grid-template-columns: 1fr 1fr; /* Stack on small screens */
+                 gap: 0.75rem;
+            }
+             .item-row input, .item-row select {
+                 width: 100%;
+             }
+
+             .item-row .btn-danger {
+                 grid-column: span 2; /* Make button full width */
+             }
+
+             .report-filter {
+                 flex-direction: column;
+                 align-items: stretch;
+             }
+
+             .report-filter input, .report-filter select, .report-filter button, .report-filter .form-group {
+                 width: 100%;
+                 flex: none; /* Remove flex grow on small screens */
+             }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Dukan Hisab Kitab</h1>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#" data-section="dashboard" class="active">Dashboard</a></li>
+                <li><a href="#" data-section="sales">Sales</a></li>
+                <li><a href="#" data-section="purchases">Purchases</a></li>
+                <li><a href="#" data-section="expenses">Expenses</a></li>
+                <li><a href="#" data-section="products">Products</a></li>
+                <li><a href="#" data-section="customers">Customers</a></li>
+                <li><a href="#" data-section="suppliers">Suppliers</a></li>
+                <li><a href="#" data-section="reports">Reports</a></li>
+                 <li><a href="#" data-section="backupRestore">Backup/Restore</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+
+            <!-- Dashboard Section -->
+            <section id="dashboardSection" class="section active">
+                <h2>Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card income">
+                        <h3>Today's Sales</h3>
+                        <p id="todaySalesTotal">0.00</p>
+                    </div>
+                    <div class="dashboard-card expense">
+                        <h3>Today's Expenses</h3>
+                        <p id="todayExpensesTotal">0.00</p>
+                    </div>
+                    <div class="dashboard-card stock">
+                        <h3>Total Stock Value (Cost)</h3>
+                        <p id="totalStockValue">0.00</p>
+                    </div>
+                     <div class="dashboard-card stock">
+                        <h3>Total Stock Items</h3>
+                        <p id="totalStockItems">0</p>
+                    </div>
+                    <div class="dashboard-card receivable">
+                        <h3>Total Customer Receivables</h3>
+                        <p id="totalReceivables">0.00</p>
+                    </div>
+                    <div class="dashboard-card payable">
+                        <h3>Total Supplier Payables</h3>
+                        <p id="totalPayables">0.00</p>
+                    </div>
+                     <div class="dashboard-card profit">
+                        <h3>Overall Profit (Simple)</h3>
+                        <p id="overallProfit">0.00</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sales Section -->
+            <section id="salesSection" class="section">
+                <h2>Sales</h2>
+                <button class="btn btn-success" id="addSaleBtn">Add New Sale</button>
+                <div id="salesList">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Total Amount</th>
+                                <th>Amount Paid</th>
+                                <th>Balance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sales rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Purchases Section -->
+            <section id="purchasesSection" class="section">
+                <h2>Purchases</h2>
+                <button class="btn btn-success" id="addPurchaseBtn">Add New Purchase</button>
+                 <div id="purchasesList">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Supplier</th>
+                                <th>Total Amount</th>
+                                <th>Amount Paid</th>
+                                <th>Balance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Purchases rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Expenses Section -->
+            <section id="expensesSection" class="section">
+                <h2>Expenses</h2>
+                <button class="btn btn-success" id="addExpenseBtn">Add New Expense</button>
+                 <div id="expensesList">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Expenses rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Products Section -->
+            <section id="productsSection" class="section">
+                <h2>Products</h2>
+                <button class="btn btn-success" id="addProductBtn">Add New Product</button>
+                 <div id="productsList">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Purchase Price</th>
+                                <th>Selling Price</th>
+                                <th>Stock</th>
+                                <th>Unit</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Products rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Customers Section -->
+            <section id="customersSection" class="section">
+                <h2>Customers</h2>
+                <button class="btn btn-success" id="addCustomerBtn">Add New Customer</button>
+                 <div id="customersList">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Balance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Customers rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Suppliers Section -->
+            <section id="suppliersSection" class="section">
+                <h2>Suppliers</h2>
+                <button class="btn btn-success" id="addSupplierBtn">Add New Supplier</button>
+                 <div id="suppliersList">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Balance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Suppliers rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reportsSection" class="section">
+                <h2>Reports & Ledgers</h2>
+
+                <div class="report-filter">
+                    <div class="form-group">
+                         <label for="reportType">Report Type:</label>
+                         <select id="reportType">
+                             <option value="generalLedger">General Ledger (All Transactions)</option>
+                             <option value="customerLedger">Customer Ledger</option>
+                             <option value="supplierLedger">Supplier Ledger</option>
+                             <option value="expenseReport">Expense Report</option>
+                              <option value="salesReport">Sales Report</option>
+                              <option value="purchaseReport">Purchase Report</option>
+                         </select>
+                    </div>
+                    <div class="form-group" id="reportEntitySelect" style="display: none;">
+                         <label for="reportEntityId">Select Entity:</label>
+                         <select id="reportEntityId"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reportStartDate">Start Date:</label>
+                        <input type="date" id="reportStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="reportEndDate">End Date:</label>
+                        <input type="date" id="reportEndDate">
+                    </div>
+                    <button class="btn" id="generateReportBtn">Generate Report</button>
+                </div>
+
+                <div id="reportResults" class="report-results">
+                     <div id="reportSummary" class="report-summary" style="display: none;"></div>
+                     <div id="reportTableContainer">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Report rows will be populated here -->
+                            </tbody>
+                        </table>
+                     </div>
+                </div>
+            </section>
+
+             <!-- Backup/Restore Section -->
+            <section id="backupRestoreSection" class="section">
+                <h2>Backup & Restore</h2>
+
+                <div class="form-group">
+                    <button class="btn btn-primary" id="backupBtn">Download Backup</button>
+                    <p>Click the button to download a JSON file containing all your data.</p>
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                    <label for="restoreFile">Upload Backup File:</label>
+                    <input type="file" id="restoreFile" accept=".json">
+                    <button class="btn btn-danger" id="restoreBtn">Restore Data</button>
+                    <p class="alert alert-warning">Warning: Restoring data will overwrite all existing data in the application. Please be sure you have the correct backup file.</p>
+                </div>
+                 <div id="restoreStatus" class="alert" style="display: none;"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> Dukan Hisab Kitab. Developed by Yasin Ullah.</p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+
+    <!-- Generic Add/Edit Modal -->
+    <div id="genericModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('genericModal')">&times;</span>
+            <h3 id="modalTitle"></h3>
+            <div id="modalFormContainer">
+                <!-- Form will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Sale Details Modal -->
+     <div id="saleDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('saleDetailsModal')">&times;</span>
+            <h3>Sale Details</h3>
+            <div id="saleDetailsContent">
+                <!-- Sale details will be injected here -->
+            </div>
+        </div>
+    </div>
+
+     <!-- Purchase Details Modal -->
+     <div id="purchaseDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('purchaseDetailsModal')">&times;</span>
+            <h3>Purchase Details</h3>
+            <div id="purchaseDetailsContent">
+                <!-- Purchase details will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Author: Yasin Ullah (Pakistani)
+
+        const DB_NAME = 'dukanDB';
+        const DB_VERSION = 1; // Increment this version number when you change the schema
+        let db;
+
+        // --- IndexedDB Setup ---
+        function openDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = function(event) {
+                    db = event.target.result;
+                    console.log('Database upgrade needed. Creating object stores...');
+
+                    // Create object stores if they don't exist
+                    if (!db.objectStoreNames.contains('products')) {
+                        const productsStore = db.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
+                        productsStore.createIndex('name', 'name', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains('customers')) {
+                        const customersStore = db.createObjectStore('customers', { keyPath: 'id', autoIncrement: true });
+                        customersStore.createIndex('name', 'name', { unique: false });
+                        customersStore.createIndex('phone', 'phone', { unique: false });
+                    }
+                     if (!db.objectStoreNames.contains('suppliers')) {
+                        const suppliersStore = db.createObjectStore('suppliers', { keyPath: 'id', autoIncrement: true });
+                        suppliersStore.createIndex('name', 'name', { unique: false });
+                        suppliersStore.createIndex('phone', 'phone', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains('sales')) {
+                        const salesStore = db.createObjectStore('sales', { keyPath: 'id', autoIncrement: true });
+                        salesStore.createIndex('date', 'date', { unique: false });
+                        salesStore.createIndex('customerId', 'customerId', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains('purchases')) {
+                        const purchasesStore = db.createObjectStore('purchases', { keyPath: 'id', autoIncrement: true });
+                         purchasesStore.createIndex('date', 'date', { unique: false });
+                        purchasesStore.createIndex('supplierId', 'supplierId', { unique: false });
+                    }
+                     if (!db.objectStoreNames.contains('expenses')) {
+                        const expensesStore = db.createObjectStore('expenses', { keyPath: 'id', autoIncrement: true });
+                         expensesStore.createIndex('date', 'date', { unique: false });
+                         expensesStore.createIndex('category', 'category', { unique: false });
+                    }
+                     // Central transaction log for ledgers and reports
+                     if (!db.objectStoreNames.contains('transactions')) {
+                         const transactionsStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
+                         transactionsStore.createIndex('date', 'date', { unique: false });
+                         transactionsStore.createIndex('type', 'type', { unique: false }); // 'sale', 'purchase', 'expense', 'payment_in', 'payment_out'
+                         transactionsStore.createIndex('relatedId', 'relatedId', { unique: false }); // Link to sale/purchase/expense/customer/supplier ID
+                         transactionsStore.createIndex('date_type', ['date', 'type'], { unique: false });
+                         transactionsStore.createIndex('relatedId_date', ['relatedId', 'date'], { unique: false });
+                     }
+                     if (!db.objectStoreNames.contains('settings')) {
+                         const settingsStore = db.createObjectStore('settings', { keyPath: 'key' });
+                     }
+
+                    console.log('Object stores created.');
+                };
+
+                request.onsuccess = function(event) {
+                    db = event.target.result;
+                    console.log('Database opened successfully');
+                    resolve(db);
+                };
+
+                request.onerror = function(event) {
+                    console.error('Database error:', event.target.errorCode);
+                    reject('Database error: ' + event.target.errorCode);
+                };
+            });
+        }
+
+        // --- Generic IndexedDB Operations ---
+
+        function addRecord(storeName, record) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.add(record);
+
+                request.onsuccess = function(event) {
+                    resolve(event.target.result); // Returns the key of the new record
+                };
+
+                request.onerror = function(event) {
+                    console.error(`Error adding record to ${storeName}:`, event.target.error);
+                    reject(`Error adding record to ${storeName}: ${event.target.error}`);
+                };
+            });
+        }
+
+        function getRecord(storeName, id) {
+             return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.get(id);
+
+                request.onsuccess = function(event) {
+                    resolve(event.target.result);
+                };
+
+                request.onerror = function(event) {
+                     console.error(`Error getting record from ${storeName}:`, event.target.error);
+                    reject(`Error getting record from ${storeName}: ${event.target.error}`);
+                };
+            });
+        }
+
+        function getAllRecords(storeName, indexName = null, query = null, direction = 'next') {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const records = [];
+
+                let cursorRequest;
+                if (indexName) {
+                    const index = store.index(indexName);
+                    cursorRequest = index.openCursor(query, direction);
+                } else {
+                    cursorRequest = store.openCursor(query, direction);
+                }
+
+
+                cursorRequest.onsuccess = function(event) {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        records.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        resolve(records);
+                    }
+                };
+
+                cursorRequest.onerror = function(event) {
+                    console.error(`Error getting all records from ${storeName}:`, event.target.error);
+                    reject(`Error getting all records from ${storeName}: ${event.target.error}`);
+                };
+            });
+        }
+
+         function countRecords(storeName) {
+             return new Promise((resolve, reject) => {
+                 const transaction = db.transaction([storeName], 'readonly');
+                 const store = transaction.objectStore(storeName);
+                 const request = store.count();
+
+                 request.onsuccess = function(event) {
+                     resolve(event.target.result);
+                 };
+
+                 request.onerror = function(event) {
+                      console.error(`Error counting records in ${storeName}:`, event.target.error);
+                     reject(`Error counting records in ${storeName}: ${event.target.error}`);
+                 };
+             });
+         }
+
+
+         function updateRecord(storeName, record) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.put(record); // put updates if key exists, adds if not
+
+                request.onsuccess = function(event) {
+                    resolve(event.target.result); // Returns the key
+                };
+
+                request.onerror = function(event) {
+                     console.error(`Error updating record in ${storeName}:`, event.target.error);
+                    reject(`Error updating record in ${storeName}: ${event.target.error}`);
+                };
+            });
+        }
+
+        function deleteRecord(storeName, id) {
+             return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.delete(id);
+
+                request.onsuccess = function(event) {
+                    resolve(true); // Indicate success
+                };
+
+                request.onerror = function(event) {
+                     console.error(`Error deleting record from ${storeName}:`, event.target.error);
+                    reject(`Error deleting record from ${storeName}: ${event.target.error}`);
+                };
+            });
+        }
+
+         function clearStore(storeName) {
+             return new Promise((resolve, reject) => {
+                 const transaction = db.transaction([storeName], 'readwrite');
+                 const store = transaction.objectStore(storeName);
+                 const request = store.clear();
+
+                 request.onsuccess = function() {
+                     resolve(true);
+                 };
+
+                 request.onerror = function(event) {
+                     console.error(`Error clearing store ${storeName}:`, event.target.error);
+                     reject(`Error clearing store ${storeName}: ${event.target.error}`);
+                 };
+             });
+         }
+
+
+        // --- Utility Functions ---
+
+        function formatDate(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = ('0' + (d.getMonth() + 1)).slice(-2);
+            const day = ('0' + d.getDate()).slice(-2);
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatCurrency(amount) {
+            return parseFloat(amount || 0).toFixed(2);
+        }
+
+         function showMessage(message, type = 'info', duration = 5000) {
+             const alertDiv = document.createElement('div');
+             alertDiv.classList.add('alert', `alert-${type}`);
+             alertDiv.textContent = message;
+             const main = document.querySelector('main .container');
+              // Remove any existing alerts first
+             main.querySelectorAll('.alert').forEach(alert => alert.remove());
+             main.insertBefore(alertDiv, main.firstChild); // Insert at the top
+
+             // Auto-remove after duration
+             setTimeout(() => {
+                 alertDiv.remove();
+             }, duration);
+         }
+
+         function showModal(modalId) {
+             const modal = document.getElementById(modalId);
+             if (modal) {
+                 modal.style.display = 'flex';
+             }
+         }
+
+         function closeModal(modalId) {
+             const modal = document.getElementById(modalId);
+             if (modal) {
+                 modal.style.display = 'none';
+             }
+         }
+
+         // --- Navigation ---
+         function navigateTo(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`nav a[data-section="${sectionId.replace('Section', '')}"]`).classList.add('active');
+
+            // Refresh data for the active section
+            // Use setTimeout to allow section to become active before refreshing
+            setTimeout(() => {
+                if (sectionId === 'dashboardSection') {
+                    refreshDashboard();
+                } else if (sectionId === 'salesSection') {
+                    listSales();
+                } else if (sectionId === 'purchasesSection') {
+                    listPurchases();
+                } else if (sectionId === 'expensesSection') {
+                    listExpenses();
+                } else if (sectionId === 'productsSection') {
+                    listProducts();
+                } else if (sectionId === 'customersSection') {
+                    listCustomers();
+                } else if (sectionId === 'suppliersSection') {
+                    listSuppliers();
+                }
+                 // Reports section is refreshed via button click
+                // Backup/Restore doesn't need initial refresh
+            }, 50); // Short delay
+         }
+
+        // --- Dashboard ---
+        async function refreshDashboard() {
+            const today = formatDate(new Date());
+
+            // Today's Sales
+            const sales = await getAllRecords('sales');
+            const todaySales = sales.filter(sale => formatDate(sale.date) === today);
+            const todaySalesTotal = todaySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+            document.getElementById('todaySalesTotal').textContent = formatCurrency(todaySalesTotal);
+
+            // Today's Expenses
+            const expenses = await getAllRecords('expenses');
+            const todayExpenses = expenses.filter(expense => formatDate(expense.date) === today);
+            const todayExpensesTotal = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+            document.getElementById('todayExpensesTotal').textContent = formatCurrency(todayExpensesTotal);
+
+            // Total Stock Value (Cost) & Total Stock Items
+            const products = await getAllRecords('products');
+            const totalStockValue = products.reduce((sum, product) => sum + (product.currentStock * product.purchasePrice), 0);
+             const totalStockItems = products.reduce((sum, product) => sum + product.currentStock, 0);
+            document.getElementById('totalStockValue').textContent = formatCurrency(totalStockValue);
+             document.getElementById('totalStockItems').textContent = totalStockItems;
+
+
+            // Total Customer Receivables (Positive balances)
+            const customers = await getAllRecords('customers');
+            const totalReceivables = customers.reduce((sum, customer) => sum + Math.max(0, customer.currentBalance), 0);
+            document.getElementById('totalReceivables').textContent = formatCurrency(totalReceivables);
+
+            // Total Supplier Payables (Positive balances owed TO supplier)
+            const suppliers = await getAllRecords('suppliers');
+            const totalPayables = suppliers.reduce((sum, supplier) => sum + Math.max(0, supplier.currentBalance), 0);
+            document.getElementById('totalPayables').textContent = formatCurrency(totalPayables);
+
+             // Overall Profit (Simple: Total Sales Amount - Total Expenses Amount)
+             // Note: This is a very basic calculation. A true P/L requires COGS (Cost of Goods Sold),
+             // which would involve tracking the cost of items sold.
+             // Here, we'll use a simplified model: Total Sales Value - Total Purchase Value - Total Expenses.
+             // This isn't strictly accurate P/L but gives a rough idea.
+             // A better simple profit: Total Sales Amount - (Total Quantity Sold * Avg Purchase Price) - Total Expenses
+             // Let's stick to the simplest for now: Total Sales Amount - Total Expenses.
+             // This assumes purchases are just stock replenishment, not direct costs in this view.
+             const totalSalesAmount = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+             const totalExpensesAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+             const overallProfit = totalSalesAmount - totalExpensesAmount;
+             document.getElementById('overallProfit').textContent = formatCurrency(overallProfit);
+             document.getElementById('overallProfit').parentElement.classList.remove('success', 'danger');
+             document.getElementById('overallProfit').parentElement.classList.add(overallProfit >= 0 ? 'success' : 'danger');
+
+
+        }
+
+        // --- Products ---
+        async function listProducts() {
+            const products = await getAllRecords('products');
+            const tbody = document.querySelector('#productsList tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            products.forEach(product => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = product.name;
+                row.insertCell(1).textContent = formatCurrency(product.purchasePrice);
+                row.insertCell(2).textContent = formatCurrency(product.sellingPrice);
+                row.insertCell(3).textContent = product.currentStock;
+                 row.insertCell(4).textContent = product.unit || '';
+                const actionsCell = row.insertCell(5);
+                actionsCell.innerHTML = `
+                    <div class="btn-group">
+                        <button class="btn btn-secondary btn-sm" onclick="editProduct(${product.id})">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderProductForm(product = {}) {
+            const isEdit = product.id !== undefined;
+            document.getElementById('modalTitle').textContent = isEdit ? 'Edit Product' : 'Add New Product';
+            const formHtml = `
+                <form id="productForm">
+                    <input type="hidden" id="productId" value="${product.id || ''}">
+                    <div class="form-group">
+                        <label for="productName">Name:</label>
+                        <input type="text" id="productName" value="${product.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPurchasePrice">Purchase Price:</label>
+                        <input type="number" id="productPurchasePrice" value="${product.purchasePrice || ''}" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productSellingPrice">Selling Price:</label>
+                        <input type="number" id="productSellingPrice" value="${product.sellingPrice || ''}" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Current Stock:</label>
+                        <input type="number" id="productStock" value="${product.currentStock || 0}" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="productUnit">Unit (e.g., pcs, kg):</label>
+                        <input type="text" id="productUnit" value="${product.unit || ''}">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('genericModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">${isEdit ? 'Update Product' : 'Add Product'}</button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('modalFormContainer').innerHTML = formHtml;
+            showModal('genericModal');
+
+            document.getElementById('productForm').onsubmit = async function(event) {
+                event.preventDefault();
+                const id = document.getElementById('productId').value;
+                const name = document.getElementById('productName').value.trim();
+                const purchasePrice = parseFloat(document.getElementById('productPurchasePrice').value);
+                const sellingPrice = parseFloat(document.getElementById('productSellingPrice').value);
+                const currentStock = parseInt(document.getElementById('productStock').value);
+                 const unit = document.getElementById('productUnit').value.trim();
+
+
+                 if (!name || isNaN(purchasePrice) || isNaN(sellingPrice) || isNaN(currentStock)) {
+                     showMessage('Please fill all required fields with valid numbers.', 'danger');
+                     return;
+                 }
+                if (purchasePrice < 0 || sellingPrice < 0 || currentStock < 0) {
+                     showMessage('Prices and Stock cannot be negative.', 'danger');
+                     return;
+                }
+
+
+                const productData = {
+                    name,
+                    purchasePrice,
+                    sellingPrice,
+                    currentStock,
+                    unit
+                };
+
+                try {
+                    if (isEdit) {
+                        productData.id = parseInt(id);
+                        await updateRecord('products', productData);
+                        showMessage('Product updated successfully!', 'success');
+                    } else {
+                        await addRecord('products', productData);
+                        showMessage('Product added successfully!', 'success');
+                    }
+                    closeModal('genericModal');
+                    listProducts();
+                    refreshDashboard(); // Stock value might change
+                } catch (error) {
+                    showMessage(`Error saving product: ${error}`, 'danger');
+                }
+            };
+        }
+
+        async function addProduct() {
+            renderProductForm();
+        }
+
+        async function editProduct(id) {
+            try {
+                const product = await getRecord('products', id);
+                if (product) {
+                    renderProductForm(product);
+                } else {
+                    showMessage('Product not found.', 'danger');
+                }
+            } catch (error) {
+                 showMessage(`Error fetching product: ${error}`, 'danger');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product? This cannot be undone.')) {
+                try {
+                    // Check if product is used in sales/purchases? For simplicity, let's allow deletion but note it might break old records display.
+                    // A more robust system would prevent deletion if linked.
+                    await deleteRecord('products', id);
+                    showMessage('Product deleted successfully!', 'success');
+                    listProducts();
+                    refreshDashboard(); // Stock value might change
+                } catch (error) {
+                    showMessage(`Error deleting product: ${error}`, 'danger');
+                }
+            }
+        }
+
+        // --- Customers ---
+         async function listCustomers() {
+            const customers = await getAllRecords('customers');
+            const tbody = document.querySelector('#customersList tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            customers.forEach(customer => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = customer.name;
+                row.insertCell(1).textContent = customer.phone || '';
+                row.insertCell(2).textContent = customer.address || '';
+                const balanceCell = row.insertCell(3);
+                balanceCell.textContent = formatCurrency(customer.currentBalance);
+                balanceCell.style.color = customer.currentBalance > 0 ? 'var(--warning-color)' : (customer.currentBalance < 0 ? 'var(--success-color)' : 'var(--dark-color)'); // Positive is Receivable (Warning), Negative is Credit (Success), Zero is Dark
+
+                const actionsCell = row.insertCell(4);
+                actionsCell.innerHTML = `
+                    <div class="btn-group">
+                        <button class="btn btn-secondary btn-sm" onclick="editCustomer(${customer.id})">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${customer.id})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderCustomerForm(customer = {}) {
+            const isEdit = customer.id !== undefined;
+            document.getElementById('modalTitle').textContent = isEdit ? 'Edit Customer' : 'Add New Customer';
+            const formHtml = `
+                <form id="customerForm">
+                    <input type="hidden" id="customerId" value="${customer.id || ''}">
+                    <div class="form-group">
+                        <label for="customerName">Name:</label>
+                        <input type="text" id="customerName" value="${customer.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone:</label>
+                        <input type="tel" id="customerPhone" value="${customer.phone || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Address:</label>
+                        <textarea id="customerAddress">${customer.address || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                         <label for="customerBalance">Initial/Current Balance:</label>
+                         <input type="number" id="customerBalance" value="${customer.currentBalance || 0}" step="0.01" ${isEdit ? '' : 'required'}>
+                         ${isEdit ? '<small>Balance is updated automatically by sales/payments. Edit with caution.</small>' : ''}
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('genericModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">${isEdit ? 'Update Customer' : 'Add Customer'}</button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('modalFormContainer').innerHTML = formHtml;
+            showModal('genericModal');
+
+            document.getElementById('customerForm').onsubmit = async function(event) {
+                event.preventDefault();
+                const id = document.getElementById('customerId').value;
+                const name = document.getElementById('customerName').value.trim();
+                const phone = document.getElementById('customerPhone').value.trim();
+                const address = document.getElementById('customerAddress').value.trim();
+                 const initialBalance = parseFloat(document.getElementById('customerBalance').value);
+
+
+                 if (!name) {
+                     showMessage('Customer name is required.', 'danger');
+                     return;
+                 }
+                 if (!isEdit && isNaN(initialBalance)) {
+                      showMessage('Initial balance must be a number.', 'danger');
+                      return;
+                 }
+
+
+                const customerData = {
+                    name,
+                    phone,
+                    address,
+                    currentBalance: isEdit ? customer.currentBalance : initialBalance // Keep existing balance on edit unless specifically changing
+                };
+
+                 if(isEdit) {
+                     // If editing, only update name, phone, address. Balance is managed by transactions.
+                      // If the user *did* change the balance field, we should probably prevent it or handle it carefully.
+                      // For simplicity here, we'll ignore the balance field on edit and keep the stored balance.
+                      // A more advanced system might add a "balance adjustment" transaction.
+                     customerData.id = parseInt(id);
+                     // Fetch the current record to preserve the balance
+                     const existingCustomer = await getRecord('customers', parseInt(id));
+                     if (existingCustomer) {
+                         customerData.currentBalance = existingCustomer.currentBalance;
+                     } else {
+                         showMessage('Error fetching existing customer data.', 'danger');
+                         return;
+                     }
+
+                 } else {
+                     customerData.currentBalance = initialBalance;
+                 }
+
+
+                try {
+                    if (isEdit) {
+                        await updateRecord('customers', customerData);
+                        showMessage('Customer updated successfully!', 'success');
+                    } else {
+                        await addRecord('customers', customerData);
+                        showMessage('Customer added successfully!', 'success');
+                    }
+                    closeModal('genericModal');
+                    listCustomers();
+                    refreshDashboard(); // Receivables might change
+                } catch (error) {
+                     showMessage(`Error saving customer: ${error}`, 'danger');
+                }
+            };
+        }
+
+        async function addCustomer() {
+            renderCustomerForm();
+        }
+
+        async function editCustomer(id) {
+            try {
+                const customer = await getRecord('customers', id);
+                if (customer) {
+                    renderCustomerForm(customer);
+                } else {
+                    showMessage('Customer not found.', 'danger');
+                }
+            } catch (error) {
+                 showMessage(`Error fetching customer: ${error}`, 'danger');
+            }
+        }
+
+        async function deleteCustomer(id) {
+             // Check if customer has outstanding balance or linked transactions?
+             // For simplicity, allow deletion but warn.
+             const customer = await getRecord('customers', id);
+            if (confirm(`Are you sure you want to delete customer "${customer.name}"? This cannot be undone and may affect old sales records.`)) {
+                try {
+                    await deleteRecord('customers', id);
+                    // Note: Related sales/transactions will remain but link will be broken.
+                    showMessage('Customer deleted successfully!', 'success');
+                    listCustomers();
+                    refreshDashboard(); // Receivables might change
+                } catch (error) {
+                    showMessage(`Error deleting customer: ${error}`, 'danger');
+                }
+            }
+        }
+
+        // --- Suppliers ---
+         async function listSuppliers() {
+            const suppliers = await getAllRecords('suppliers');
+            const tbody = document.querySelector('#suppliersList tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            suppliers.forEach(supplier => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = supplier.name;
+                row.insertCell(1).textContent = supplier.phone || '';
+                row.insertCell(2).textContent = supplier.address || '';
+                 const balanceCell = row.insertCell(3);
+                balanceCell.textContent = formatCurrency(supplier.currentBalance);
+                 balanceCell.style.color = supplier.currentBalance > 0 ? 'var(--danger-color)' : (supplier.currentBalance < 0 ? 'var(--success-color)' : 'var(--dark-color)'); // Positive balance means we owe supplier (Payable - Danger), Negative means supplier owes us (Credit - Success)
+                const actionsCell = row.insertCell(4);
+                actionsCell.innerHTML = `
+                    <div class="btn-group">
+                        <button class="btn btn-secondary btn-sm" onclick="editSupplier(${supplier.id})">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSupplier(${supplier.id})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderSupplierForm(supplier = {}) {
+            const isEdit = supplier.id !== undefined;
+            document.getElementById('modalTitle').textContent = isEdit ? 'Edit Supplier' : 'Add New Supplier';
+            const formHtml = `
+                <form id="supplierForm">
+                    <input type="hidden" id="supplierId" value="${supplier.id || ''}">
+                    <div class="form-group">
+                        <label for="supplierName">Name:</label>
+                        <input type="text" id="supplierName" value="${supplier.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierPhone">Phone:</label>
+                        <input type="tel" id="supplierPhone" value="${supplier.phone || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierAddress">Address:</label>
+                        <textarea id="supplierAddress">${supplier.address || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                         <label for="supplierBalance">Initial/Current Balance:</label>
+                         <input type="number" id="supplierBalance" value="${supplier.currentBalance || 0}" step="0.01" ${isEdit ? '' : 'required'}>
+                          ${isEdit ? '<small>Balance is updated automatically by purchases/payments. Edit with caution.</small>' : ''}
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('genericModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">${isEdit ? 'Update Supplier' : 'Add Supplier'}</button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('modalFormContainer').innerHTML = formHtml;
+            showModal('genericModal');
+
+            document.getElementById('supplierForm').onsubmit = async function(event) {
+                event.preventDefault();
+                const id = document.getElementById('supplierId').value;
+                const name = document.getElementById('supplierName').value.trim();
+                const phone = document.getElementById('supplierPhone').value.trim();
+                const address = document.getElementById('supplierAddress').value.trim();
+                 const initialBalance = parseFloat(document.getElementById('supplierBalance').value);
+
+                 if (!name) {
+                     showMessage('Supplier name is required.', 'danger');
+                     return;
+                 }
+                 if (!isEdit && isNaN(initialBalance)) {
+                      showMessage('Initial balance must be a number.', 'danger');
+                      return;
+                 }
+
+                const supplierData = {
+                    name,
+                    phone,
+                    address
+                };
+
+                 if(isEdit) {
+                     supplierData.id = parseInt(id);
+                      const existingSupplier = await getRecord('suppliers', parseInt(id));
+                     if (existingSupplier) {
+                         supplierData.currentBalance = existingSupplier.currentBalance;
+                     } else {
+                         showMessage('Error fetching existing supplier data.', 'danger');
+                         return;
+                     }
+                 } else {
+                      supplierData.currentBalance = initialBalance;
+                 }
+
+
+                try {
+                    if (isEdit) {
+                        await updateRecord('suppliers', supplierData);
+                        showMessage('Supplier updated successfully!', 'success');
+                    } else {
+                        await addRecord('suppliers', supplierData);
+                        showMessage('Supplier added successfully!', 'success');
+                    }
+                    closeModal('genericModal');
+                    listSuppliers();
+                    refreshDashboard(); // Payables might change
+                } catch (error) {
+                     showMessage(`Error saving supplier: ${error}`, 'danger');
+                }
+            };
+        }
+
+        async function addSupplier() {
+            renderSupplierForm();
+        }
+
+        async function editSupplier(id) {
+            try {
+                const supplier = await getRecord('suppliers', id);
+                if (supplier) {
+                    renderSupplierForm(supplier);
+                } else {
+                    showMessage('Supplier not found.', 'danger');
+                }
+            } catch (error) {
+                 showMessage(`Error fetching supplier: ${error}`, 'danger');
+            }
+        }
+
+        async function deleteSupplier(id) {
+             // Check if supplier has outstanding balance or linked transactions?
+             // For simplicity, allow deletion but warn.
+              const supplier = await getRecord('suppliers', id);
+            if (confirm(`Are you sure you want to delete supplier "${supplier.name}"? This cannot be undone and may affect old purchase records.`)) {
+                try {
+                    await deleteRecord('suppliers', id);
+                     // Note: Related purchases/transactions will remain but link will be broken.
+                    showMessage('Supplier deleted successfully!', 'success');
+                    listSuppliers();
+                    refreshDashboard(); // Payables might change
+                } catch (error) {
+                    showMessage(`Error deleting supplier: ${error}`, 'danger');
+                }
+            }
+        }
+
+        // --- Sales ---
+         async function listSales() {
+            const sales = await getAllRecords('sales', 'date', null, 'prev'); // List newest first
+            const customers = await getAllRecords('customers');
+            const customerMap = new Map(customers.map(c => [c.id, c.name]));
+
+            const tbody = document.querySelector('#salesList tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            sales.forEach(sale => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = formatDate(sale.date);
+                row.insertCell(1).textContent = customerMap.get(sale.customerId) || 'N/A';
+                row.insertCell(2).textContent = formatCurrency(sale.totalAmount);
+                row.insertCell(3).textContent = formatCurrency(sale.amountPaid);
+                const balanceCell = row.insertCell(4);
+                balanceCell.textContent = formatCurrency(sale.balance);
+                 balanceCell.style.color = sale.balance > 0 ? 'var(--warning-color)' : (sale.balance < 0 ? 'var(--success-color)' : 'var(--dark-color)'); // Positive is Receivable (Warning), Negative is Credit (Success), Zero is Dark
+
+                const actionsCell = row.insertCell(5);
+                actionsCell.innerHTML = `
+                    <div class="btn-group">
+                        <button class="btn btn-info btn-sm" onclick="viewSaleDetails(${sale.id})">View</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSale(${sale.id})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        async function renderSaleForm(sale = {}) {
+             const isEdit = sale.id !== undefined;
+             // Editing sales is complex (stock, customer balance, transactions).
+             // For simplicity, let's only allow adding new sales and viewing details.
+             // A real app would need careful handling of sale edits/returns.
+             if (isEdit) {
+                 showMessage("Editing sales is not supported in this version. Please delete and re-add if necessary.", "info");
+                 return;
+             }
+
+            document.getElementById('modalTitle').textContent = 'Add New Sale';
+            const products = await getAllRecords('products');
+            const customers = await getAllRecords('customers');
+
+            let productOptions = products.map(p => `<option value="${p.id}" data-price="${p.sellingPrice}" data-stock="${p.currentStock}" data-name="${p.name}">${p.name} (Stock: ${p.currentStock})</option>`).join('');
+            let customerOptions = customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            const formHtml = `
+                <form id="saleForm">
+                    <div class="form-group">
+                        <label for="saleDate">Date:</label>
+                        <input type="date" id="saleDate" value="${formatDate(new Date())}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="saleCustomer">Customer:</label>
+                        <select id="saleCustomer" required>
+                            <option value="">Select Customer</option>
+                            ${customerOptions}
+                        </select>
+                         <small>Customer not listed? Go to Customers section to add one.</small>
+                    </div>
+
+                    <h4>Items Sold</h4>
+                    <div id="salesItemsContainer">
+                        <!-- Item rows will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" id="addItemBtn">Add Item</button>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label for="saleTotalAmount">Total Amount:</label>
+                        <input type="number" id="saleTotalAmount" value="0.00" step="0.01" readonly required>
+                    </div>
+                     <div class="form-group">
+                        <label for="saleAmountPaid">Amount Paid:</label>
+                        <input type="number" id="saleAmountPaid" value="0.00" step="0.01" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="salePaymentMethod">Payment Method:</label>
+                        <input type="text" id="salePaymentMethod" value="Cash" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('genericModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">Record Sale</button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('modalFormContainer').innerHTML = formHtml;
+            showModal('genericModal');
+
+            const itemsContainer = document.getElementById('salesItemsContainer');
+            const totalAmountInput = document.getElementById('saleTotalAmount');
+            const amountPaidInput = document.getElementById('saleAmountPaid');
+
+            function addItemRow(item = {}) {
+                 const products = document.querySelectorAll('#modalFormContainer .sale-item-product option'); // Get current product list from modal
+                 if (products.length <= 1) { // Only includes "Select Product" option
+                      showMessage("Please add products before adding a sale item.", "warning");
+                      return;
+                 }
+
+                const itemRow = document.createElement('div');
+                itemRow.classList.add('item-row');
+                itemRow.innerHTML = `
+                    <select class="sale-item-product" required>
+                        <option value="">Select Product</option>
+                        ${productOptions}
+                    </select>
+                    <input type="number" class="sale-item-quantity" value="${item.quantity || 1}" min="1" required placeholder="Qty">
+                    <input type="number" class="sale-item-price" value="${item.price || ''}" step="0.01" required placeholder="Price">
+                    <input type="number" class="sale-item-total" value="${item.total || '0.00'}" step="0.01" readonly placeholder="Total">
+                    <button type="button" class="btn btn-danger btn-sm remove-item-btn">&times;</button>
+                `;
+                itemsContainer.appendChild(itemRow);
+
+                const productSelect = itemRow.querySelector('.sale-item-product');
+                const quantityInput = itemRow.querySelector('.sale-item-quantity');
+                const priceInput = itemRow.querySelector('.sale-item-price');
+                const totalInput = itemRow.querySelector('.sale-item-total');
+                const removeBtn = itemRow.querySelector('.remove-item-btn');
+
+                 // Set initial values if editing (though edit is disabled)
+                 if (item.productId) {
+                     productSelect.value = item.productId;
+                 }
+                 if (item.price) {
+                      priceInput.value = item.price;
+                 } else if (item.productId) {
+                      // If product selected but no price, default to selling price
+                      const selectedOption = productSelect.options[productSelect.selectedIndex];
+                      priceInput.value = selectedOption.dataset.price || '';
+                 }
+
+
+                function updateItemTotal() {
+                    const qty = parseFloat(quantityInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    totalInput.value = formatCurrency(qty * price);
+                    updateSaleTotal();
+                }
+
+                productSelect.onchange = function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    // Set default price to selling price from product data
+                    priceInput.value = selectedOption.dataset.price || '';
+                     // Check stock when selecting product
+                     const currentStock = parseInt(selectedOption.dataset.stock) || 0;
+                     const currentQty = parseInt(quantityInput.value) || 0;
+                     if (currentQty > currentStock) {
+                          showMessage(`Warning: Quantity (${currentQty}) exceeds available stock (${currentStock}) for ${selectedOption.dataset.name}.`, 'warning', 3000);
+                     }
+                    updateItemTotal();
+                };
+
+                quantityInput.oninput = function() {
+                     // Check stock when changing quantity
+                     const selectedOption = productSelect.options[productSelect.selectedIndex];
+                     const currentStock = parseInt(selectedOption.dataset.stock) || 0;
+                     const currentQty = parseInt(this.value) || 0;
+                      if (currentQty > currentStock) {
+                          showMessage(`Warning: Quantity (${currentQty}) exceeds available stock (${currentStock}) for ${selectedOption.dataset.name}.`, 'warning', 3000);
+                     }
+                    updateItemTotal();
+                };
+                priceInput.oninput = updateItemTotal;
+
+                removeBtn.onclick = function() {
+                    itemRow.remove();
+                    updateSaleTotal();
+                };
+
+                 // Initial calculation for added row
+                 updateItemTotal();
+            }
+
+            function updateSaleTotal() {
+                let total = 0;
+                itemsContainer.querySelectorAll('.item-row').forEach(row => {
+                    const itemTotal = parseFloat(row.querySelector('.sale-item-total').value) || 0;
+                    total += itemTotal;
+                });
+                totalAmountInput.value = formatCurrency(total);
+                 // Suggest amount paid defaults to total, but allow editing
+                 // Only update amount paid if it's currently 0 or matches the previous total
+                 const currentAmountPaid = parseFloat(amountPaidInput.value) || 0;
+                 const previousTotal = parseFloat(totalAmountInput.dataset.prevTotal || '0') ;
+                 if (currentAmountPaid === 0 || Math.abs(currentAmountPaid - previousTotal) < 0.001) { // Use small delta for float comparison
+                      amountPaidInput.value = formatCurrency(total);
+                 }
+                 totalAmountInput.dataset.prevTotal = total; // Store previous total to know if amount paid should update
+            }
+
+            document.getElementById('addItemBtn').onclick = () => addItemRow();
+
+            // Add one item row by default if no items exist (for new sale)
+             if (!isEdit || (isEdit && sale.items.length === 0)) {
+                 addItemRow();
+             } else if (isEdit && sale.items && sale.items.length > 0) {
+                 // If editing (disabled), populate existing items
+                 sale.items.forEach(item => addItemRow(item));
+             }
+
+
+            document.getElementById('saleForm').onsubmit = async function(event) {
+                event.preventDefault();
+
+                const date = document.getElementById('saleDate').value;
+                const customerId = parseInt(document.getElementById('saleCustomer').value);
+                const totalAmount = parseFloat(document.getElementById('saleTotalAmount').value);
+                const amountPaid = parseFloat(document.getElementById('saleAmountPaid').value);
+                const paymentMethod = document.getElementById('salePaymentMethod').value.trim();
+                const balance = totalAmount - amountPaid;
+
+                 if (!date || !customerId || isNaN(totalAmount) || isNaN(amountPaid) || !paymentMethod) {
+                     showMessage('Please fill all required fields.', 'danger');
+                     return;
+                 }
+                 if (amountPaid < 0) {
+                      showMessage('Amount Paid cannot be negative.', 'danger');
+                      return;
+                 }
+
+
+                 const items = [];
+                 let stockError = false;
+                 const itemRows = itemsContainer.querySelectorAll('.item-row');
+
+                 if (itemRows.length === 0) {
+                      showMessage('Please add at least one item to the sale.', 'danger');
+                      return;
+                 }
+
+                 // Collect items and check stock
+                 const products = await getAllRecords('products');
+                 const productMap = new Map(products.map(p => [p.id, p]));
+
+                 for (const row of itemRows) {
+                     const productId = parseInt(row.querySelector('.sale-item-product').value);
+                     const quantity = parseInt(row.querySelector('.sale-item-quantity').value);
+                     const price = parseFloat(row.querySelector('.sale-item-price').value);
+                     const total = parseFloat(row.querySelector('.sale-item-total').value); // Recalculate total to be safe
+                     const calculatedTotal = quantity * price;
+
+
+                     if (isNaN(productId) || isNaN(quantity) || isNaN(price) || quantity <= 0 || price < 0 || Math.abs(total - calculatedTotal) > 0.01) {
+                         showMessage('Please ensure all item details are valid numbers, quantity is positive, and item totals are correct.', 'danger');
+                         return;
+                     }
+
+                     // Check stock before saving
+                     const product = productMap.get(productId);
+                     if (!product || product.currentStock < quantity) {
+                         showMessage(`Error: Insufficient stock for ${product ? product.name : 'Product ID ' + productId}. Available: ${product ? product.currentStock : 0}, Required: ${quantity}.`, 'danger');
+                         stockError = true;
+                         break; // Stop processing items if stock error found
+                     }
+
+                     items.push({ productId, quantity, price, total: calculatedTotal }); // Use calculated total
+                 }
+
+                 if (stockError) return;
+
+
+                const saleData = {
+                    date: new Date(date).getTime(), // Store as timestamp
+                    customerId,
+                    totalAmount, // Use the total from the form after items are validated
+                    amountPaid,
+                    balance: totalAmount - amountPaid, // Recalculate balance
+                    paymentMethod,
+                    items
+                };
+
+                try {
+                    const saleId = await addRecord('sales', saleData);
+
+                    // Update Product Stock
+                    for (const item of items) {
+                        const product = productMap.get(item.productId);
+                        if (product) {
+                            product.currentStock -= item.quantity;
+                            await updateRecord('products', product);
+                        }
+                    }
+
+                    // Update Customer Balance
+                    const customer = await getRecord('customers', customerId);
+                    if (customer) {
+                        customer.currentBalance += saleData.balance; // Add the outstanding balance (or subtract if paid more than total)
+                        await updateRecord('customers', customer);
+                    }
+
+                    // Add Transaction for Sale (Income)
+                    await addRecord('transactions', {
+                        date: saleData.date,
+                        type: 'sale',
+                        relatedId: saleId,
+                        description: `Sale to ${customer ? customer.name : 'ID ' + customerId}`,
+                        amount: saleData.totalAmount, // Total income value from sale
+                         // customerBalanceEffect: saleData.balance // Could store this for ledger clarity
+                    });
+
+                     // Add Transaction for Payment Received (if any)
+                     if (saleData.amountPaid > 0) {
+                         await addRecord('transactions', {
+                            date: saleData.date,
+                            type: 'payment_in',
+                            relatedId: customerId, // Link to customer
+                            description: `Payment from ${customer ? customer.name : 'ID ' + customerId} for Sale ID ${saleId}`,
+                            amount: saleData.amountPaid, // Amount received (positive cash flow)
+                            paymentMethod: saleData.paymentMethod
+                         });
+                     }
+
+
+                    showMessage('Sale recorded successfully!', 'success');
+                    closeModal('genericModal');
+                    listSales();
+                    refreshDashboard(); // Update totals
+                } catch (error) {
+                    showMessage(`Error recording sale: ${error}`, 'danger');
+                     console.error(error);
+                }
+            };
+        }
+
+        async function addSale() {
+            renderSaleForm();
+        }
+
+        async function viewSaleDetails(id) {
+             try {
+                 const sale = await getRecord('sales', id);
+                 if (!sale) {
+                     showMessage('Sale not found.', 'danger');
+                     return;
+                 }
+
+                 const customer = await getRecord('customers', sale.customerId);
+                 const products = await getAllRecords('products');
+                 const productMap = new Map(products.map(p => [p.id, p]));
+
+                 let detailsHtml = `
+                     <p><strong>Date:</strong> ${formatDate(sale.date)}</p>
+                     <p><strong>Customer:</strong> ${customer ? customer.name : 'N/A'}</p>
+                     <p><strong>Payment Method:</strong> ${sale.paymentMethod}</p>
+                     <h4>Items:</h4>
+                     <table>
+                         <thead>
+                             <tr>
+                                 <th>Product</th>
+                                 <th>Qty</th>
+                                 <th>Price</th>
+                                 <th>Total</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             ${sale.items.map(item => {
+                                 const product = productMap.get(item.productId);
+                                 return `
+                                     <tr>
+                                         <td>${product ? product.name : 'ID ' + item.productId}</td>
+                                         <td>${item.quantity}</td>
+                                         <td>${formatCurrency(item.price)}</td>
+                                         <td>${formatCurrency(item.total)}</td>
+                                     </tr>
+                                 `;
+                             }).join('')}
+                         </tbody>
+                     </table>
+                     <p style="margin-top: 1rem;"><strong>Total Amount:</strong> ${formatCurrency(sale.totalAmount)}</p>
+                     <p><strong>Amount Paid:</strong> ${formatCurrency(sale.amountPaid)}</p>
+                     <p><strong>Balance:</strong> ${formatCurrency(sale.balance)}</p>
+                 `;
+
+                 document.getElementById('saleDetailsContent').innerHTML = detailsHtml;
+                 showModal('saleDetailsModal');
+
+             } catch (error) {
+                 showMessage(`Error fetching sale details: ${error}`, 'danger');
+                 console.error(error);
+             }
+        }
+
+
+        async function deleteSale(id) {
+             if (confirm('Are you sure you want to delete this sale? This will reverse stock changes and customer balance updates.')) {
+                try {
+                    const sale = await getRecord('sales', id);
+                    if (!sale) {
+                        showMessage('Sale not found.', 'danger');
+                        return;
+                    }
+
+                    // Reverse Product Stock changes
+                    for (const item of sale.items) {
+                        const product = await getRecord('products', item.productId);
+                        if (product) {
+                            product.currentStock += item.quantity; // Add stock back
+                            await updateRecord('products', product);
+                        }
+                    }
+
+                    // Reverse Customer Balance update
+                    const customer = await getRecord('customers', sale.customerId);
+                    if (customer) {
+                        customer.currentBalance -= sale.balance; // Subtract the balance that was added
+                        await updateRecord('customers', customer);
+                    }
+
+                    // Delete related transactions (Sale and Payment_in linked to this sale/customer)
+                     const transactions = await getAllRecords('transactions');
+                     const relatedTransactions = transactions.filter(t =>
+                         (t.type === 'sale' && t.relatedId === id) ||
+                         (t.type === 'payment_in' && t.relatedId === sale.customerId && t.amount === sale.amountPaid && formatDate(t.date) === formatDate(sale.date)) // Simple match for payment
+                     );
+                     for (const t of relatedTransactions) {
+                         await deleteRecord('transactions', t.id);
+                     }
+
+
+                    // Delete the sale record itself
+                    await deleteRecord('sales', id);
+
+                    showMessage('Sale deleted successfully!', 'success');
+                    listSales();
+                    refreshDashboard(); // Update totals
+                } catch (error) {
+                    showMessage(`Error deleting sale: ${error}`, 'danger');
+                    console.error(error);
+                }
+            }
+        }
+
+
+         // --- Purchases ---
+         async function listPurchases() {
+            const purchases = await getAllRecords('purchases', 'date', null, 'prev'); // List newest first
+            const suppliers = await getAllRecords('suppliers');
+            const supplierMap = new Map(suppliers.map(s => [s.id, s.name]));
+
+            const tbody = document.querySelector('#purchasesList tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            purchases.forEach(purchase => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = formatDate(purchase.date);
+                row.insertCell(1).textContent = supplierMap.get(purchase.supplierId) || 'N/A';
+                row.insertCell(2).textContent = formatCurrency(purchase.totalAmount);
+                row.insertCell(3).textContent = formatCurrency(purchase.amountPaid);
+                const balanceCell = row.insertCell(4);
+                balanceCell.textContent = formatCurrency(purchase.balance);
+                 balanceCell.style.color = purchase.balance > 0 ? 'var(--danger-color)' : (purchase.balance < 0 ? 'var(--success-color)' : 'var(--dark-color)'); // Positive is Payable (Danger), Negative is Credit (Success), Zero is Dark
+
+                const actionsCell = row.insertCell(5);
+                actionsCell.innerHTML = `
+                    <div class="btn-group">
+                        <button class="btn btn-info btn-sm" onclick="viewPurchaseDetails(${purchase.id})">View</button>
+                        <button class="btn btn-danger btn-sm" onclick="deletePurchase(${purchase.id})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+         async function renderPurchaseForm(purchase = {}) {
+             const isEdit = purchase.id !== undefined;
+             // Editing purchases is complex (stock, supplier balance, transactions).
+             // For simplicity, let's only allow adding new purchases and viewing details.
+             // A real app would need careful handling of purchase edits/returns.
+              if (isEdit) {
+                 showMessage("Editing purchases is not supported in this version. Please delete and re-add if necessary.", "info");
+                 return;
+             }
+
+            document.getElementById('modalTitle').textContent = 'Add New Purchase';
+            const products = await getAllRecords('products');
+            const suppliers = await getAllRecords('suppliers');
+
+            let productOptions = products.map(p => `<option value="${p.id}" data-price="${p.purchasePrice}" data-stock="${p.currentStock}" data-name="${p.name}">${p.name} (Current Stock: ${p.currentStock})</option>`).join('');
+            let supplierOptions = suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+            const formHtml = `
+                <form id="purchaseForm">
+                    <div class="form-group">
+                        <label for="purchaseDate">Date:</label>
+                        <input type="date" id="purchaseDate" value="${formatDate(new Date())}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseSupplier">Supplier:</label>
+                        <select id="purchaseSupplier" required>
+                            <option value="">Select Supplier</option>
+                            ${supplierOptions}
+                        </select>
+                         <small>Supplier not listed? Go to Suppliers section to add one.</small>
+                    </div>
+
+                    <h4>Items Purchased</h4>
+                    <div id="purchaseItemsContainer">
+                        <!-- Item rows will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" id="addPurchaseItemBtn">Add Item</button>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label for="purchaseTotalAmount">Total Amount:</label>
+                        <input type="number" id="purchaseTotalAmount" value="0.00" step="0.01" readonly required>
+                    </div>
+                     <div class="form-group">
+                        <label for="purchaseAmountPaid">Amount Paid:</label>
+                        <input type="number" id="purchaseAmountPaid" value="0.00" step="0.01" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="purchasePaymentMethod">Payment Method:</label>
+                        <input type="text" id="purchasePaymentMethod" value="Cash" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('genericModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">Record Purchase</button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('modalFormContainer').innerHTML = formHtml;
+            showModal('genericModal');
+
+            const itemsContainer = document.getElementById('purchaseItemsContainer');
+            const totalAmountInput = document.getElementById('purchaseTotalAmount');
+            const amountPaidInput = document.getElementById('purchaseAmountPaid');
+
+            function addPurchaseItemRow(item = {}) {
+                 const products = document.querySelectorAll('#modalFormContainer .purchase-item-product option'); // Get current product list from modal
+                 if (products.length <= 1) { // Only includes "Select Product" option
+                      showMessage("Please add products before adding a purchase item.", "warning");
+                      return;
+                 }
+
+                const itemRow = document.createElement('div');
+                itemRow.classList.add('item-row');
+                itemRow.innerHTML = `
+                    <select class="purchase-item-product" required>
+                        <option value="">Select Product</option>
+                        ${productOptions}
+                    </select>
+                    <input type="number" class="purchase-item-quantity" value="${item.quantity || 1}" min="1" required placeholder="Qty">
+                    <input type="number" class="purchase-item-price" value="${item.price || ''}" step="0.01" required placeholder="Price">
+                    <input type="number" class="purchase-item-total" value="${item.total || '0.00'}" step="0.01" readonly placeholder="Total">
+                    <button type="button" class="btn btn-danger btn-sm remove-item-btn">&times;</button>
+                `;
+                itemsContainer.appendChild(itemRow);
+
+                const productSelect = itemRow.querySelector('.purchase-item-product');
+                const quantityInput = itemRow.querySelector('.purchase-item-quantity');
+                const priceInput = itemRow.querySelector('.purchase-item-price');
+                const totalInput = itemRow.querySelector('.purchase-item-total');
+                const removeBtn = itemRow.querySelector('.remove-item-btn');
+
+                 // Set initial values if editing (though edit is disabled)
+                 if (item.productId) {
+                     productSelect.value = item.productId;
+                 }
+                  if (item.price) {
+                      priceInput.value = item.price;
+                 } else if (item.productId) {
+                      // If product selected but no price, default to purchase price
+                      const selectedOption = productSelect.options[productSelect.selectedIndex];
+                      priceInput.value = selectedOption.dataset.price || '';
+                 }
+
+
+                function updateItemTotal() {
+                    const qty = parseFloat(quantityInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    totalInput.value = formatCurrency(qty * price);
+                    updatePurchaseTotal();
+                }
+
+                productSelect.onchange = function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    // Set default price to purchase price from product data
+                    priceInput.value = selectedOption.dataset.price || '';
+                    updateItemTotal();
+                };
+
+                quantityInput.oninput = updateItemTotal;
+                priceInput.oninput = updateItemTotal;
+
+                removeBtn.onclick = function() {
+                    itemRow.remove();
+                    updatePurchaseTotal();
+                };
+
+                 // Initial calculation for added row
+                 updateItemTotal();
+            }
+
+            function updatePurchaseTotal() {
+                let total = 0;
+                itemsContainer.querySelectorAll('.item-row').forEach(row => {
+                    const itemTotal = parseFloat(row.querySelector('.purchase-item-total').value) || 0;
+                    total += itemTotal;
+                });
+                totalAmountInput.value = formatCurrency(total);
+                 // Suggest amount paid defaults to total, but allow editing
+                 const currentAmountPaid = parseFloat(amountPaidInput.value) || 0;
+                 const previousTotal = parseFloat(totalAmountInput.dataset.prevTotal || '0') ;
+                 if (currentAmountPaid === 0 || Math.abs(currentAmountPaid - previousTotal) < 0.001) { // Use small delta for float comparison
+                      amountPaidInput.value = formatCurrency(total);
+                 }
+                 totalAmountInput.dataset.prevTotal = total; // Store previous total
+            }
+
+            document.getElementById('addPurchaseItemBtn').onclick = () => addPurchaseItemRow();
+
+            // Add one item row by default if no items exist (for new purchase)
+             if (!isEdit || (isEdit && purchase.items.length === 0)) {
+                 addPurchaseItemRow();
+             } else if (isEdit && purchase.items && purchase.items.length > 0) {
+                 // If editing (disabled), populate existing items
+                 purchase.items.forEach(item => addPurchaseItemRow(item));
+             }
+
+
+            document.getElementById('purchaseForm').onsubmit = async function(event) {
+                event.preventDefault();
+
+                const date = document.getElementById('purchaseDate').value;
+                const supplierId = parseInt(document.getElementById('purchaseSupplier').value);
+                const totalAmount = parseFloat(document.getElementById('purchaseTotalAmount').value);
+                const amountPaid = parseFloat(document.getElementById('purchaseAmountPaid').value);
+                const paymentMethod = document.getElementById('purchasePaymentMethod').value.trim();
+                const balance = totalAmount - amountPaid; // Positive balance means we owe supplier
+
+                 if (!date || !supplierId || isNaN(totalAmount) || isNaN(amountPaid) || !paymentMethod) {
+                     showMessage('Please fill all required fields.', 'danger');
+                     return;
+                 }
+                 if (amountPaid < 0) {
+                      showMessage('Amount Paid cannot be negative.', 'danger');
+                      return;
+                 }
+
+
+                 const items = [];
+                 const itemRows = itemsContainer.querySelectorAll('.item-row');
+
+                  if (itemRows.length === 0) {
+                      showMessage('Please add at least one item to the purchase.', 'danger');
+                      return;
+                 }
+
+                 // Collect items
+                 const products = await getAllRecords('products');
+                 const productMap = new Map(products.map(p => [p.id, p]));
+
+                 for (const row of itemRows) {
+                     const productId = parseInt(row.querySelector('.purchase-item-product').value);
+                     const quantity = parseInt(row.querySelector('.purchase-item-quantity').value);
+                     const price = parseFloat(row.querySelector('.purchase-item-price').value);
+                     const total = parseFloat(row.querySelector('.purchase-item-total').value); // Recalculate total
+                     const calculatedTotal = quantity * price;
+
+
+                      if (isNaN(productId) || isNaN(quantity) || isNaN(price) || quantity <= 0 || price < 0 || Math.abs(total - calculatedTotal) > 0.01) {
+                         showMessage('Please ensure all item details are valid numbers, quantity is positive, and item totals are correct.', 'danger');
+                         return;
+                     }
+                     items.push({ productId, quantity, price, total: calculatedTotal }); // Use calculated total
+                 }
+
+
+                const purchaseData = {
+                    date: new Date(date).getTime(), // Store as timestamp
+                    supplierId,
+                    totalAmount, // Use total from form
+                    amountPaid,
+                    balance: totalAmount - amountPaid, // Recalculate balance
+                    paymentMethod,
+                    items
+                };
+
+                try {
+                    const purchaseId = await addRecord('purchases', purchaseData);
+
+                    // Update Product Stock
+                    for (const item of items) {
+                        const product = productMap.get(item.productId);
+                        if (product) {
+                            product.currentStock += item.quantity; // Add stock
+                            await updateRecord('products', product);
+                        }
+                    }
+
+                    // Update Supplier Balance
+                    const supplier = await getRecord('suppliers', supplierId);
+                    if (supplier) {
+                        supplier.currentBalance += purchaseData.balance; // Add the outstanding balance we owe (positive)
+                        await updateRecord('suppliers', supplier);
+                    }
+
+                     // Add Transaction for Purchase event
+                    await addRecord('transactions', {
+                        date: purchaseData.date,
+                        type: 'purchase',
+                        relatedId: purchaseId,
+                        description: `Purchase from ${supplier ? supplier.name : 'ID ' + supplierId}`,
+                        amount: -purchaseData.totalAmount, // Represent total purchase value as a negative value in general ledger context
+                         // supplierBalanceEffect: purchaseData.balance // Could store this for ledger clarity
+                    });
+
+                     // Add Transaction for Payment Made (if any)
+                     if (purchaseData.amountPaid > 0) {
+                         await addRecord('transactions', {
+                            date: purchaseData.date,
+                            type: 'payment_out',
+                            relatedId: supplierId, // Link to supplier
+                            description: `Payment to ${supplier ? supplier.name : 'ID ' + supplierId} for Purchase ID ${purchaseId}`,
+                            amount: -purchaseData.amountPaid, // Amount paid (negative cash flow)
+                            paymentMethod: purchaseData.paymentMethod
+                         });
+                     }
+
+
+                    showMessage('Purchase recorded successfully!', 'success');
+                    closeModal('genericModal');
+                    listPurchases();
+                    refreshDashboard(); // Update totals
+                } catch (error) {
+                    showMessage(`Error recording purchase: ${error}`, 'danger');
+                    console.error(error);
+                }
+            };
+        }
+
+         async function addPurchase() {
+            renderPurchaseForm();
+        }
+
+         async function viewPurchaseDetails(id) {
+             try {
+                 const purchase = await getRecord('purchases', id);
+                 if (!purchase) {
+                     showMessage('Purchase not found.', 'danger');
+                     return;
+                 }
+
+                 const supplier = await getRecord('suppliers', purchase.supplierId);
+                 const products = await getAllRecords('products');
+                 const productMap = new Map(products.map(p => [p.id, p]));
+
+                 let detailsHtml = `
+                     <p><strong>Date:</strong> ${formatDate(purchase.date)}</p>
+                     <p><strong>Supplier:</strong> ${supplier ? supplier.name : 'N/A'}</p>
+                     <p><strong>Payment Method:</strong> ${purchase.paymentMethod}</p>
+                     <h4>Items:</h4>
+                     <table>
+                         <thead>
+                             <tr>
+                                 <th>Product</th>
+                                 <th>Qty</th>
+                                 <th>Price</th>
+                                 <th>Total</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             ${purchase.items.map(item => {
+                                 const product = productMap.get(item.productId);
+                                 return `
+                                     <tr>
+                                         <td>${product ? product.name : 'ID ' + item.productId}</td>
+                                         <td>${item.quantity}</td>
+                                         <td>${formatCurrency(item.price)}</td>
+                                         <td>${formatCurrency(item.total)}</td>
+                                     </tr>
+                                 `;
+                             }).join('')}
+                         </tbody>
+                     </table>
+                     <p style="margin-top: 1rem;"><strong>Total Amount:</strong> ${formatCurrency(purchase.totalAmount)}</p>
+                     <p><strong>Amount Paid:</strong> ${formatCurrency(purchase.amountPaid)}</p>
+                     <p><strong>Balance:</strong> ${formatCurrency(purchase.balance)}</p>
+                 `;
+
+                 document.getElementById('purchaseDetailsContent').innerHTML = detailsHtml;
+                 showModal('purchaseDetailsModal');
+
+             } catch (error) {
+                 showMessage(`Error fetching purchase details: ${error}`, 'danger');
+                 console.error(error);
+             }
+        }
+
+         async function deletePurchase(id) {
+            if (confirm('Are you sure you want to delete this purchase? This will reverse stock changes and supplier balance updates.')) {
+                try {
+                    const purchase = await getRecord('purchases', id);
+                    if (!purchase) {
+                        showMessage('Purchase not found.', 'danger');
+                        return;
+                    }
+
+                    // Reverse Product Stock changes
+                    for (const item of purchase.items) {
+                        const product = await getRecord('products', item.productId);
+                        if (product) {
+                            product.currentStock -= item.quantity; // Subtract stock back
+                            await updateRecord('products', product);
+                        }
+                    }
+
+                    // Reverse Supplier Balance update
+                    const supplier = await getRecord('suppliers', purchase.supplierId);
+                    if (supplier) {
+                        supplier.currentBalance -= purchase.balance; // Subtract the balance that was added (we owed less)
+                        await updateRecord('suppliers', supplier);
+                    }
+
+                    // Delete related transactions (Purchase and Payment_out linked to this purchase/supplier)
+                     const transactions = await getAllRecords('transactions');
+                     const relatedTransactions = transactions.filter(t =>
+                         (t.type === 'purchase' && t.relatedId === id) ||
+                         (t.type === 'payment_out' && t.relatedId === purchase.supplierId && t.amount === -purchase.amountPaid && formatDate(t.date) === formatDate(purchase.date)) // Simple match for payment
+                     );
+                     for (const t of relatedTransactions) {
+                         await deleteRecord('transactions', t.id);
+                     }
+
+
+                    // Delete the purchase record itself
+                    await deleteRecord('purchases', id);
+
+                    showMessage('Purchase deleted successfully!', 'success');
+                    listPurchases();
+                    refreshDashboard(); // Update totals
+                } catch (error) {
+                    showMessage(`Error deleting purchase: ${error}`, 'danger');
+                    console.error(error);
+                }
+            }
+        }
+
+
+        // --- Expenses ---
+         async function listExpenses() {
+            const expenses = await getAllRecords('expenses', 'date', null, 'prev'); // List newest first
+            const tbody = document.querySelector('#expensesList tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            expenses.forEach(expense => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = formatDate(expense.date);
+                row.insertCell(1).textContent = expense.category || 'General';
+                row.insertCell(2).textContent = formatCurrency(expense.amount);
+                row.insertCell(3).textContent = expense.description || '';
+                const actionsCell = row.insertCell(4);
+                actionsCell.innerHTML = `
+                    <div class="btn-group">
+                        <button class="btn btn-secondary btn-sm" onclick="editExpense(${expense.id})">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteExpense(${expense.id})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderExpenseForm(expense = {}) {
+            const isEdit = expense.id !== undefined;
+            document.getElementById('modalTitle').textContent = isEdit ? 'Edit Expense' : 'Add New Expense';
+            const formHtml = `
+                <form id="expenseForm">
+                    <input type="hidden" id="expenseId" value="${expense.id || ''}">
+                    <div class="form-group">
+                        <label for="expenseDate">Date:</label>
+                        <input type="date" id="expenseDate" value="${formatDate(expense.date || new Date())}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseCategory">Category:</label>
+                        <input type="text" id="expenseCategory" value="${expense.category || ''}" placeholder="e.g., Rent, Utilities, Salary" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAmount">Amount:</label>
+                        <input type="number" id="expenseAmount" value="${expense.amount || ''}" step="0.01" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="expensePaymentMethod">Payment Method:</label>
+                        <input type="text" id="expensePaymentMethod" value="${expense.paymentMethod || 'Cash'}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseDescription">Description:</label>
+                        <textarea id="expenseDescription">${expense.description || ''}</textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('genericModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">${isEdit ? 'Update Expense' : 'Add Expense'}</button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('modalFormContainer').innerHTML = formHtml;
+            showModal('genericModal');
+
+            document.getElementById('expenseForm').onsubmit = async function(event) {
+                event.preventDefault();
+                const id = document.getElementById('expenseId').value;
+                const date = document.getElementById('expenseDate').value;
+                const category = document.getElementById('expenseCategory').value.trim();
+                const amount = parseFloat(document.getElementById('expenseAmount').value);
+                 const paymentMethod = document.getElementById('expensePaymentMethod').value.trim();
+                const description = document.getElementById('expenseDescription').value.trim();
+
+                 if (!date || !category || isNaN(amount) || amount <= 0 || !paymentMethod) {
+                     showMessage('Please fill all required fields with valid positive amount.', 'danger');
+                     return;
+                 }
+
+                const expenseData = {
+                    date: new Date(date).getTime(), // Store as timestamp
+                    category,
+                    amount,
+                    paymentMethod,
+                    description
+                };
+
+                try {
+                    if (isEdit) {
+                        expenseData.id = parseInt(id);
+                         // Need to find and update the corresponding transaction
+                         const transactions = await getAllRecords('transactions');
+                         const transactionToUpdate = transactions.find(t => t.type === 'expense' && t.relatedId === parseInt(id));
+
+                        await updateRecord('expenses', expenseData);
+
+                         if (transactionToUpdate) {
+                             transactionToUpdate.date = expenseData.date;
+                             transactionToUpdate.description = `Expense: ${expenseData.category}`; // Keep description simple for ledger
+                             transactionToUpdate.amount = -expenseData.amount; // Expense is negative cash flow
+                             transactionToUpdate.paymentMethod = expenseData.paymentMethod;
+                             await updateRecord('transactions', transactionToUpdate);
+                         } else {
+                              // This shouldn't happen if transaction was created on add
+                              console.warn(`Transaction not found for expense ID ${id} during edit.`);
+                         }
+
+                        showMessage('Expense updated successfully!', 'success');
+                    } else {
+                        const expenseId = await addRecord('expenses', expenseData);
+                         // Add Transaction for Expense
+                         await addRecord('transactions', {
+                             date: expenseData.date,
+                             type: 'expense',
+                             relatedId: expenseId,
+                             description: `Expense: ${expenseData.category}`,
+                             amount: -expenseData.amount, // Expense is negative cash flow
+                             paymentMethod: expenseData.paymentMethod
+                         });
+                        showMessage('Expense added successfully!', 'success');
+                    }
+                    closeModal('genericModal');
+                    listExpenses();
+                    refreshDashboard(); // Update totals
+                } catch (error) {
+                     showMessage(`Error saving expense: ${error}`, 'danger');
+                     console.error(error);
+                }
+            };
+        }
+
+        async function addExpense() {
+            renderExpenseForm();
+        }
+
+        async function editExpense(id) {
+            try {
+                const expense = await getRecord('expenses', id);
+                if (expense) {
+                    renderExpenseForm(expense);
+                } else {
+                    showMessage('Expense not found.', 'danger');
+                }
+            } catch (error) {
+                 showMessage(`Error fetching expense: ${error}`, 'danger');
+            }
+        }
+
+        async function deleteExpense(id) {
+            if (confirm('Are you sure you want to delete this expense?')) {
+                try {
+                     // Delete related transaction
+                     const transactions = await getAllRecords('transactions');
+                     const transactionToDelete = transactions.find(t => t.type === 'expense' && t.relatedId === id);
+                     if (transactionToDelete) {
+                         await deleteRecord('transactions', transactionToDelete.id);
+                     }
+
+                    await deleteRecord('expenses', id);
+                    showMessage('Expense deleted successfully!', 'success');
+                    listExpenses();
+                    refreshDashboard(); // Update totals
+                } catch (error) {
+                    showMessage(`Error deleting expense: ${error}`, 'danger');
+                    console.error(error);
+                }
+            }
+        }
+
+         // --- Reports ---
+         async function populateReportEntitySelect(reportType) {
+             const selectElement = document.getElementById('reportEntityId');
+             selectElement.innerHTML = ''; // Clear previous options
+             selectElement.style.display = 'none';
+             document.getElementById('reportEntitySelect').style.display = 'none';
+
+             let entities = [];
+             let defaultOptionText = '';
+
+             if (reportType === 'customerLedger') {
+                 entities = await getAllRecords('customers');
+                 defaultOptionText = 'Select Customer';
+             } else if (reportType === 'supplierLedger') {
+                 entities = await getAllRecords('suppliers');
+                 defaultOptionText = 'Select Supplier';
+             } else {
+                 return; // No entity selection needed for other report types
+             }
+
+             if (entities.length > 0) {
+                 selectElement.style.display = 'block';
+                 document.getElementById('reportEntitySelect').style.display = 'block';
+                 const defaultOption = document.createElement('option');
+                 defaultOption.value = '';
+                 defaultOption.textContent = defaultOptionText;
+                 selectElement.appendChild(defaultOption);
+
+                 entities.forEach(entity => {
+                     const option = document.createElement('option');
+                     option.value = entity.id;
+                     option.textContent = entity.name;
+                     selectElement.appendChild(option);
+                 });
+             } else {
+                  // Only show warning if the report type *requires* an entity but none exist
+                  if (reportType === 'customerLedger') {
+                       showMessage("No customers found to generate a ledger. Please add customers first.", "warning");
+                  } else if (reportType === 'supplierLedger') {
+                       showMessage("No suppliers found to generate a ledger. Please add suppliers first.", "warning");
+                  }
+             }
+         }
+
+
+                  async function generateReport() {
+             const reportType = document.getElementById('reportType').value;
+             const startDate = document.getElementById('reportStartDate').value;
+             const endDate = document.getElementById('reportEndDate').value;
+             const entityId = document.getElementById('reportEntityId').value; // Used for customer/supplier ledgers
+
+             const reportTableBody = document.querySelector('#reportResults tbody');
+             const reportSummaryDiv = document.getElementById('reportSummary');
+             reportTableBody.innerHTML = ''; // Clear previous results
+             reportSummaryDiv.style.display = 'none';
+             reportSummaryDiv.innerHTML = '';
+
+             let transactions = [];
+             let reportTitle = 'Report';
+             let summaryHtml = '';
+             let balance = 0; // Running balance for ledgers
+
+             try {
+                 let allTransactions = await getAllRecords('transactions', 'date'); // Get all transactions sorted by date
+
+                 // Filter by date range
+                 const startTimestamp = startDate ? new Date(startDate).getTime() : 0;
+                 // Add one day to include the end date fully
+                 const endTimestamp = endDate ? new Date(endDate).getTime() + (24 * 60 * 60 * 1000) : Infinity;
+
+                 allTransactions = allTransactions.filter(t => t.date >= startTimestamp && t.date < endTimestamp);
+
+
+                 // Filter by report type and entity
+                 if (reportType === 'generalLedger') {
+                     transactions = allTransactions;
+                     reportTitle = 'General Ledger (All Transactions)';
+
+                     // Calculate starting balance for General Ledger if start date is used
+                     if (startDate) {
+                         // Need transactions *before* the start date
+                         const transactionsBeforeStart = await getAllRecords('transactions', 'date', IDBKeyRange.upperBound(startTimestamp, true));
+                         balance = transactionsBeforeStart.reduce((sum, t) => sum + t.amount, 0);
+                          if (balance !== 0) {
+                                const openingRow = reportTableBody.insertRow();
+                                openingRow.insertCell(0).textContent = formatDate(startDate || new Date(0));
+                                openingRow.insertCell(1).textContent = 'Opening Balance';
+                                openingRow.insertCell(2).textContent = '';
+                                openingRow.insertCell(3).textContent = '';
+                                const openingBalanceCell = openingRow.insertCell(4);
+                                openingBalanceCell.textContent = formatCurrency(balance);
+                                openingBalanceCell.style.color = balance >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                           }
+                     } else {
+                          balance = 0;
+                     }
+
+
+                 } else if (reportType === 'customerLedger') {
+                     if (!entityId) {
+                         showMessage('Please select a customer.', 'warning');
+                         return;
+                     }
+                     const customerId = parseInt(entityId);
+                     // Filter transactions relevant to this customer
+                     transactions = allTransactions.filter(t =>
+                         (t.type === 'sale' && t.customerId === customerId) ||
+                         (t.type === 'payment_in' && t.relatedId === customerId)
+                     );
+                      const customer = await getRecord('customers', customerId);
+                     reportTitle = `Customer Ledger: ${customer ? customer.name : 'ID ' + entityId}`;
+
+                      // Calculate starting balance for Customer Ledger
+                     if (startDate) {
+                          // Need transactions *before* the start date for this customer
+                           const transactionsBeforeStart = (await getAllRecords('transactions', 'date', IDBKeyRange.upperBound(startTimestamp, true)))
+                           .filter(t => (t.type === 'sale' && t.customerId === customerId) || (t.type === 'payment_in' && t.relatedId === customerId));
+
+                            // Calculate balance based on the effect of these transactions on customer balance
+                            // Sale: Adds (TotalAmount - AmountPaid)
+                            // Payment_in: Subtracts AmountPaid
+                            balance = 0; // Start from 0 and calculate based on past transactions
+                            for (const t of transactionsBeforeStart) {
+                                if (t.type === 'sale') {
+                                    const sale = await getRecord('sales', t.relatedId);
+                                    if (sale) balance += (sale.totalAmount - sale.amountPaid);
+                                } else if (t.type === 'payment_in') {
+                                    balance -= t.amount;
+                                }
+                            }
+
+
+                            if (balance !== 0) {
+                                const openingRow = reportTableBody.insertRow();
+                                openingRow.insertCell(0).textContent = formatDate(startDate || new Date(0));
+                                openingRow.insertCell(1).textContent = 'Opening Balance';
+                                openingRow.insertCell(2).textContent = '';
+                                openingRow.insertCell(3).textContent = '';
+                                const openingBalanceCell = openingRow.insertCell(4);
+                                openingBalanceCell.textContent = formatCurrency(balance);
+                                openingBalanceCell.style.color = balance > 0 ? 'var(--warning-color)' : (balance < 0 ? 'var(--success-color)' : 'var(--dark-color)');
+                           }
+                     } else {
+                          // If no start date, balance starts from 0 and accumulates
+                          balance = 0;
+                     }
+
+
+                 } else if (reportType === 'supplierLedger') {
+                     if (!entityId) {
+                         showMessage('Please select a supplier.', 'warning');
+                         return;
+                     }
+                     const supplierId = parseInt(entityId);
+                     // Filter transactions relevant to this supplier
+                     transactions = allTransactions.filter(t =>
+                         (t.type === 'purchase' && t.supplierId === supplierId) ||
+                         (t.type === 'payment_out' && t.relatedId === supplierId)
+                     );
+                      const supplier = await getRecord('suppliers', supplierId);
+                     reportTitle = `Supplier Ledger: ${supplier ? supplier.name : 'ID ' + entityId}`;
+
+                     // Calculate starting balance for Supplier Ledger
+                      if (startDate) {
+                           // Need transactions *before* the start date for this supplier
+                           const transactionsBeforeStart = (await getAllRecords('transactions', 'date', IDBKeyRange.upperBound(startTimestamp, true)))
+                           .filter(t => (t.type === 'purchase' && t.supplierId === supplierId) || (t.type === 'payment_out' && t.relatedId === supplierId));
+
+                           // Calculate balance based on the effect of these transactions on supplier balance
+                           // Purchase: Adds (TotalAmount - AmountPaid) to payable (positive balance)
+                           // Payment_out: Subtracts AmountPaid from payable (negative balance effect)
+                            balance = 0; // Start from 0 and calculate based on past transactions
+                            for (const t of transactionsBeforeStart) {
+                                if (t.type === 'purchase') {
+                                     const purchase = await getRecord('purchases', t.relatedId);
+                                     if (purchase) balance += (purchase.totalAmount - purchase.amountPaid);
+                                } else if (t.type === 'payment_out') {
+                                     balance -= t.amount; // Payment Out amount is negative, so subtracting it increases the balance (makes it less negative or more positive)
+                                     // Wait, Payment Out amount is stored as negative cash flow (-AmountPaid).
+                                     // So, `balance += t.amount` is correct: adding a negative amount reduces the balance.
+                                     balance += t.amount;
+                                }
+                            }
+
+
+                            if (balance !== 0) {
+                                const openingRow = reportTableBody.insertRow();
+                                openingRow.insertCell(0).textContent = formatDate(startDate || new Date(0));
+                                openingRow.insertCell(1).textContent = 'Opening Balance';
+                                openingRow.insertCell(2).textContent = '';
+                                openingRow.insertCell(3).textContent = '';
+                                const openingBalanceCell = openingRow.insertCell(4);
+                                openingBalanceCell.textContent = formatCurrency(balance);
+                                openingBalanceCell.style.color = balance > 0 ? 'var(--danger-color)' : (balance < 0 ? 'var(--success-color)' : 'var(--dark-color)');
+                            }
+                      } else {
+                           balance = 0;
+                      }
+
+                 } else if (reportType === 'expenseReport') {
+                     transactions = allTransactions.filter(t => t.type === 'expense');
+                     reportTitle = 'Expense Report';
+                     const totalExpenses = transactions.reduce((sum, t) => sum + (-t.amount), 0); // Amount is stored negative
+                     summaryHtml = `<p><strong>Total Expenses:</strong> ${formatCurrency(totalExpenses)}</p>`;
+                 } else if (reportType === 'salesReport') {
+                      transactions = allTransactions.filter(t => t.type === 'sale');
+                      reportTitle = 'Sales Report';
+                       const totalSales = transactions.reduce((sum, t) => sum + t.amount, 0); // Amount is stored as TotalAmount (positive)
+                       summaryHtml = `<p><strong>Total Sales Amount:</strong> ${formatCurrency(totalSales)}</p>`;
+
+                 } else if (reportType === 'purchaseReport') {
+                      transactions = allTransactions.filter(t => t.type === 'purchase');
+                      reportTitle = 'Purchase Report';
+                       const totalPurchases = transactions.reduce((sum, t) => sum + (-t.amount), 0); // Amount is stored as -TotalAmount (negative)
+                       summaryHtml = `<p><strong>Total Purchase Amount:</strong> ${formatCurrency(totalPurchases)}</p>`;
+                 }
+
+
+                 // Sort transactions by date (already done by index, but good to be sure)
+                 transactions.sort((a, b) => a.date - b.date);
+
+                 // Populate table rows - CHANGED FROM forEach TO for...of
+                 for (const t of transactions) { // Use for...of for async inside loop
+                     const row = reportTableBody.insertRow();
+                     row.insertCell(0).textContent = formatDate(t.date);
+                     row.insertCell(1).textContent = t.type.replace('_', ' ').toUpperCase();
+                     row.insertCell(2).textContent = t.description || '';
+
+                     const amountCell = row.insertCell(3);
+                     amountCell.textContent = formatCurrency(Math.abs(t.amount)); // Show absolute value in amount column
+                     amountCell.style.color = t.amount >= 0 ? 'var(--success-color)' : 'var(--danger-color)'; // Green for positive, Red for negative
+
+                     const balanceCell = row.insertCell(4);
+
+                     if (reportType === 'generalLedger') {
+                         balance += t.amount; // General ledger balance is cumulative cash/bank effect
+                          balanceCell.textContent = formatCurrency(balance);
+                          balanceCell.style.color = balance >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                     } else if (reportType === 'customerLedger') {
+                          // Customer ledger balance: Sales increase receivable (positive), Payments decrease (negative)
+                          let effect = 0;
+                           if (t.type === 'sale') {
+                                // Need to fetch sale to get amountPaid for balance effect
+                                const sale = await getRecord('sales', t.relatedId);
+                                if (sale) effect = sale.totalAmount - sale.amountPaid;
+                           } else if (t.type === 'payment_in') {
+                                effect = -t.amount; // Payment In reduces customer balance
+                           }
+                           balance += effect;
+                          balanceCell.textContent = formatCurrency(balance);
+                          balanceCell.style.color = balance > 0 ? 'var(--warning-color)' : (balance < 0 ? 'var(--success-color)' : 'var(--dark-color)');
+                     } else if (reportType === 'supplierLedger') {
+                          // Supplier ledger balance: Purchases increase payable (positive), Payments decrease (negative)
+                           let effect = 0;
+                           if (t.type === 'purchase') {
+                                // Need to fetch purchase to get amountPaid for balance effect
+                                const purchase = await getRecord('purchases', t.relatedId);
+                                if (purchase) effect = purchase.totalAmount - purchase.amountPaid; // Positive effect on payable
+                           } else if (t.type === 'payment_out') {
+                                effect = t.amount; // Payment Out amount is negative, reduces payable (negative effect)
+                           }
+                           balance += effect;
+                          balanceCell.textContent = formatCurrency(balance);
+                          balanceCell.style.color = balance > 0 ? 'var(--danger-color)' : (balance < 0 ? 'var(--success-color)' : 'var(--dark-color)');
+                     } else {
+                          // No running balance for simple reports like Sales/Purchase/Expense reports
+                          balanceCell.textContent = '';
+                     }
+                 }
+
+                 // Update report title
+                 document.querySelector('#reportsSection h2').textContent = reportTitle;
+
+                 // Show summary if available
+                 if (summaryHtml) {
+                     reportSummaryDiv.innerHTML = summaryHtml;
+                     reportSummaryDiv.style.display = 'block';
+                 }
+
+
+             } catch (error) {
+                 showMessage(`Error generating report: ${error}`, 'danger');
+                 console.error(error);
+             }
+         }
+
+         // --- Backup & Restore ---
+         async function backupData() {
+             try {
+                 const data = {};
+                 const storeNames = db.objectStoreNames;
+
+                 for (let i = 0; i < storeNames.length; i++) {
+                     const storeName = storeNames[i];
+                     data[storeName] = await getAllRecords(storeName);
+                 }
+
+                 const jsonString = JSON.stringify(data, null, 2);
+                 const blob = new Blob([jsonString], { type: 'application/json' });
+                 const url = URL.createObjectURL(blob);
+
+                 const a = document.createElement('a');
+                 a.href = url;
+                 a.download = `dukan_hisab_kitab_backup_${formatDate(new Date())}.json`;
+                 document.body.appendChild(a); // Append to body to make it clickable
+                 a.click();
+                 document.body.removeChild(a); // Clean up
+                 URL.revokeObjectURL(url); // Free up memory
+
+                 showMessage('Backup downloaded successfully!', 'success');
+
+             } catch (error) {
+                 showMessage(`Error creating backup: ${error}`, 'danger');
+                 console.error(error);
+             }
+         }
+
+         async function restoreData(file) {
+             const restoreStatusDiv = document.getElementById('restoreStatus');
+             restoreStatusDiv.style.display = 'none';
+
+             if (!file) {
+                 showMessage('Please select a backup file.', 'warning');
+                 return;
+             }
+
+             if (!confirm('WARNING: Restoring will erase all current data and replace it with the data from the backup file. Are you absolutely sure you want to proceed?')) {
+                 return;
+             }
+
+             const reader = new FileReader();
+             reader.onload = async function(event) {
+                 try {
+                     const data = JSON.parse(event.target.result);
+                     const storeNames = db.objectStoreNames;
+
+                     // Validate backup structure (basic check)
+                     for (let i = 0; i < storeNames.length; i++) {
+                         const storeName = storeNames[i];
+                         if (!data.hasOwnProperty(storeName) || !Array.isArray(data[storeName])) {
+                             throw new Error(`Backup file is missing data for "${storeName}" or data is not an array.`);
+                         }
+                     }
+
+                     // Clear existing data
+                     const clearPromises = [];
+                     for (let i = 0; i < storeNames.length; i++) {
+                         clearPromises.push(clearStore(storeNames[i]));
+                     }
+                     await Promise.all(clearPromises);
+                     console.log('All existing stores cleared.');
+
+                     // Restore data
+                     const transaction = db.transaction(storeNames, 'readwrite');
+                     transaction.oncomplete = function() {
+                         console.log('Restore transaction complete.');
+                         showMessage('Data restored successfully! Please refresh the page.', 'success', 10000); // Keep message longer
+                         restoreStatusDiv.className = 'alert alert-success';
+                         restoreStatusDiv.textContent = 'Data restored successfully! Please refresh the page.';
+                         restoreStatusDiv.style.display = 'block';
+                         // Note: Refreshing is recommended to ensure all UI elements reflect new data
+                     };
+                     transaction.onerror = function(event) {
+                         console.error('Restore transaction failed:', event.target.error);
+                          showMessage(`Restore failed: ${event.target.error}`, 'danger', 10000); // Keep message longer
+                          restoreStatusDiv.className = 'alert alert-danger';
+                          restoreStatusDiv.textContent = `Restore failed: ${event.target.error}`;
+                          restoreStatusDiv.style.display = 'block';
+                     };
+
+                     for (let i = 0; i < storeNames.length; i++) {
+                         const storeName = storeNames[i];
+                         const store = transaction.objectStore(storeName);
+                         const recordsToRestore = data[storeName];
+
+                          // Use put to restore. With autoIncrement, this means existing IDs in the backup
+                          // will be used if they don't conflict, or new ones assigned if they do or if
+                          // the store is empty. This is the standard way to restore with autoIncrement,
+                          // but relies on the backup having the 'id' field correctly.
+                         for (const record of recordsToRestore) {
+                             store.put(record);
+                         }
+                     }
+
+                 } catch (error) {
+                     console.error('Error reading or parsing backup file:', error);
+                     showMessage(`Error restoring data: ${error}`, 'danger', 10000); // Keep message longer
+                     restoreStatusDiv.className = 'alert alert-danger';
+                     restoreStatusDiv.textContent = `Error restoring data: ${error}`;
+                     restoreStatusDiv.style.display = 'block';
+                 }
+             };
+             reader.onerror = function(event) {
+                 console.error('File reading error:', event.target.error);
+                  showMessage(`Error reading file: ${event.target.error}`, 'danger', 10000); // Keep message longer
+                   restoreStatusDiv.className = 'alert alert-danger';
+                   restoreStatusDiv.textContent = `Error reading file: ${event.target.error}`;
+                   restoreStatusDiv.style.display = 'block';
+             };
+
+             reader.readAsText(file);
+         }
+
+
+        // --- Event Listeners and Initialization ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            try {
+                await openDatabase();
+                console.log('Database ready.');
+
+                // Check if sample data needs to be added
+                 const salesCount = await countRecords('sales');
+                 if (salesCount === 0) {
+                     showMessage('Adding sample data...', 'info', 3000);
+                     await addSampleData();
+                     showMessage('Sample data added! Explore the app.', 'success', 5000);
+                 }
+
+
+                // Initial navigation to dashboard
+                navigateTo('dashboardSection');
+
+                // Setup navigation links
+                document.querySelectorAll('nav a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = e.target.dataset.section + 'Section';
+                        navigateTo(section);
+                    });
+                });
+
+                // Setup Add buttons
+                document.getElementById('addProductBtn').addEventListener('click', addProduct);
+                document.getElementById('addCustomerBtn').addEventListener('click', addCustomer);
+                document.getElementById('addSupplierBtn').addEventListener('click', addSupplier);
+                document.getElementById('addSaleBtn').addEventListener('click', addSale);
+                document.getElementById('addPurchaseBtn').addEventListener('click', addPurchase);
+                document.getElementById('addExpenseBtn').addEventListener('click', addExpense);
+
+                // Setup Report filters
+                 document.getElementById('reportType').addEventListener('change', (e) => {
+                     populateReportEntitySelect(e.target.value);
+                 });
+                 document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+                // Setup Backup/Restore
+                 document.getElementById('backupBtn').addEventListener('click', backupData);
+                 document.getElementById('restoreBtn').addEventListener('click', () => {
+                     const fileInput = document.getElementById('restoreFile');
+                     if (fileInput.files.length > 0) {
+                         restoreData(fileInput.files[0]);
+                     } else {
+                         showMessage('Please select a file to restore.', 'warning');
+                     }
+                 });
+
+
+            } catch (error) {
+                console.error('Failed to initialize application:', error);
+                document.body.innerHTML = `<div class="container"><p class="alert alert-danger">Error initializing application: ${error}. Please ensure your browser supports IndexedDB and try again.</p></div>`;
+            }
+        });
+
+        // --- Sample Data Addition (Added at the bottom as requested) ---
+
+        async function addSampleData() {
+            console.log('Adding sample data...');
+
+            const sampleProducts = [
+                { name: 'Laptop', purchasePrice: 50000, sellingPrice: 65000, currentStock: 10, unit: 'pcs' },
+                { name: 'Mobile Phone', purchasePrice: 25000, sellingPrice: 32000, currentStock: 15, unit: 'pcs' },
+                { name: 'Headphones', purchasePrice: 1500, sellingPrice: 2500, currentStock: 30, unit: 'pcs' },
+                { name: 'USB Drive 64GB', purchasePrice: 800, sellingPrice: 1200, currentStock: 50, unit: 'pcs' },
+                { name: 'Keyboard', purchasePrice: 2000, sellingPrice: 3000, currentStock: 12, unit: 'pcs' },
+                 { name: 'Mouse', purchasePrice: 500, sellingPrice: 800, currentStock: 25, unit: 'pcs' },
+                 { name: 'Monitor 24"', purchasePrice: 18000, sellingPrice: 24000, currentStock: 5, unit: 'pcs' },
+                 { name: 'Printer Ink Cartridge', purchasePrice: 1000, sellingPrice: 1500, currentStock: 20, unit: 'pcs' },
+            ];
+
+            const sampleCustomers = [
+                { name: 'Ali Ahmed', phone: '03001234567', address: 'Street 1, Lahore', currentBalance: 0 },
+                { name: 'Fatima Khan', phone: '03217654321', address: 'Defence, Karachi', currentBalance: 0 },
+                { name: 'Usman Tariq', phone: '03339876543', address: 'Islamabad', currentBalance: 0 },
+                 { name: 'Aisha Bilal', phone: '03455551212', address: 'Faisalabad', currentBalance: 0 },
+                 { name: 'Zainab Hassan', phone: '03123456789', address: 'Peshawar', currentBalance: 0 },
+            ];
+
+            const sampleSuppliers = [
+                { name: 'Tech Distributors', phone: '042111222', address: 'Market Rd, Lahore', currentBalance: 0 },
+                { name: 'Gadget Importers', phone: '021999888', address: 'Port Area, Karachi', currentBalance: 0 },
+                 { name: 'Electronics Hub', phone: '051777666', address: 'Blue Area, Islamabad', currentBalance: 0 },
+            ];
+
+            const sampleExpenses = [
+                { date: new Date('2023-10-01').getTime(), category: 'Rent', amount: 15000, paymentMethod: 'Bank Transfer', description: 'October Shop Rent' },
+                { date: new Date('2023-10-05').getTime(), category: 'Utilities', amount: 3500, paymentMethod: 'Cash', description: 'Electricity Bill' },
+                { date: new Date('2023-10-10').getTime(), category: 'Salary', amount: 20000, paymentMethod: 'Cash', description: 'Staff Salary - Oct' },
+                 { date: new Date('2023-10-15').getTime(), category: 'Miscellaneous', amount: 1200, paymentMethod: 'Cash', description: 'Cleaning Supplies' },
+                 { date: new Date('2023-10-20').getTime(), category: 'Utilities', amount: 1800, paymentMethod: 'Online', description: 'Internet Bill' },
+            ];
+
+            // Store added records to get their new IndexedDB IDs
+            const addedProducts = [];
+            const addedCustomers = [];
+            const addedSuppliers = [];
+
+            // Add Products
+            for (const product of sampleProducts) {
+                const id = await addRecord('products', product);
+                addedProducts.push({ id, ...product });
+            }
+            console.log(`Added ${addedProducts.length} sample products.`);
+
+            // Add Customers
+            for (const customer of sampleCustomers) {
+                const id = await addRecord('customers', customer);
+                addedCustomers.push({ id, ...customer });
+            }
+             console.log(`Added ${addedCustomers.length} sample customers.`);
+
+            // Add Suppliers
+            for (const supplier of sampleSuppliers) {
+                const id = await addRecord('suppliers', supplier);
+                addedSuppliers.push({ id, ...supplier });
+            }
+             console.log(`Added ${addedSuppliers.length} sample suppliers.`);
+
+             // Add Expenses and their transactions
+             for (const expense of sampleExpenses) {
+                 const expenseId = await addRecord('expenses', expense);
+                  await addRecord('transactions', {
+                     date: expense.date,
+                     type: 'expense',
+                     relatedId: expenseId,
+                     description: `Expense: ${expense.category}`,
+                     amount: -expense.amount, // Expense is negative cash flow
+                     paymentMethod: expense.paymentMethod
+                 });
+             }
+             console.log(`Added ${sampleExpenses.length} sample expenses.`);
+
+
+            // --- Add Sample Sales (Aim for around 10-15 sales) ---
+            const sampleSales = [
+                { customerIndex: 0, date: '2023-10-02', items: [{ productIndex: 1, quantity: 1, price: 32000 }], paidRatio: 1 }, // Fully paid
+                { customerIndex: 1, date: '2023-10-03', items: [{ productIndex: 0, quantity: 1, price: 65000 }, { productIndex: 3, quantity: 2, price: 1200 }], paidRatio: 0.5 }, // Partially paid
+                { customerIndex: 2, date: '2023-10-04', items: [{ productIndex: 2, quantity: 5, price: 2500 }], paidRatio: 1 },
+                { customerIndex: 0, date: '2023-10-06', items: [{ productIndex: 4, quantity: 1, price: 3000 }], paidRatio: 0.8 }, // Partially paid
+                { customerIndex: 3, date: '2023-10-07', items: [{ productIndex: 1, quantity: 2, price: 31500 }], paidRatio: 1 }, // Slightly different price
+                 { customerIndex: 4, date: '2023-10-08', items: [{ productIndex: 5, quantity: 3, price: 800 }], paidRatio: 1 },
+                 { customerIndex: 1, date: '2023-10-09', items: [{ productIndex: 6, quantity: 1, price: 24000 }, { productIndex: 4, quantity: 1, price: 3000 }], paidRatio: 0.7 }, // Partially paid
+                 { customerIndex: 0, date: '2023-10-11', items: [{ productIndex: 7, quantity: 4, price: 1500 }], paidRatio: 1 },
+                 { customerIndex: 2, date: '2023-10-12', items: [{ productIndex: 0, quantity: 1, price: 64500 }], paidRatio: 0.9 }, // Partially paid
+                 { customerIndex: 3, date: '2023-10-14', items: [{ productIndex: 3, quantity: 10, price: 1150 }], paidRatio: 1 },
+                 { customerIndex: 4, date: '2023-10-16', items: [{ productIndex: 2, quantity: 2, price: 2500 }, { productIndex: 5, quantity: 5, price: 800 }], paidRatio: 0.6 }, // Partially paid
+                 { customerIndex: 0, date: '2023-10-18', items: [{ productIndex: 1, quantity: 1, price: 32000 }], paidRatio: 1 },
+                 { customerIndex: 1, date: '2023-10-19', items: [{ productIndex: 4, quantity: 1, price: 3000 }, { productIndex: 7, quantity: 2, price: 1500 }], paidRatio: 1 },
+                 { customerIndex: 2, date: '2023-10-21', items: [{ productIndex: 6, quantity: 1, price: 24000 }], paidRatio: 0.4 }, // Partially paid
+                 { customerIndex: 3, date: '2023-10-22', items: [{ productIndex: 0, quantity: 1, price: 65000 }], paidRatio: 1 },
+            ];
+
+            for (const sale of sampleSales) {
+                const customer = addedCustomers[sale.customerIndex];
+                const saleDate = new Date(sale.date).getTime();
+
+                let totalAmount = 0;
+                const saleItems = [];
+                const stockUpdates = []; // Collect stock updates
+
+                for (const item of sale.items) {
+                    const product = addedProducts[item.productIndex];
+                    const itemTotal = item.quantity * item.price;
+                    totalAmount += itemTotal;
+                    saleItems.push({
+                        productId: product.id,
+                        quantity: item.quantity,
+                        price: item.price,
+                        total: itemTotal
+                    });
+
+                     // Prepare stock update
+                    stockUpdates.push({ productId: product.id, quantity: item.quantity });
+                }
+
+                const amountPaid = totalAmount * sale.paidRatio;
+                const balance = totalAmount - amountPaid;
+
+                const saleData = {
+                    date: saleDate,
+                    customerId: customer.id,
+                    totalAmount: totalAmount,
+                    amountPaid: amountPaid,
+                    balance: balance,
+                    paymentMethod: sale.paidRatio === 1 ? 'Cash' : 'Credit', // Simple method
+                    items: saleItems
+                };
+
+                // Add Sale Record
+                const saleId = await addRecord('sales', saleData);
+
+                // Update Product Stock
+                for (const update of stockUpdates) {
+                     const product = await getRecord('products', update.productId);
+                     if (product) {
+                         product.currentStock -= update.quantity;
+                         await updateRecord('products', product);
+                     }
+                }
+
+                // Update Customer Balance
+                customer.currentBalance += balance;
+                await updateRecord('customers', customer);
+
+
+                 // Add Transaction for Sale
+                 await addRecord('transactions', {
+                     date: saleData.date,
+                     type: 'sale',
+                     relatedId: saleId,
+                     description: `Sale to ${customer.name}`,
+                     amount: saleData.totalAmount, // Total income value
+                     // customerBalanceEffect: saleData.balance // Store balance effect
+                 });
+
+                 // Add Transaction for Payment Received (if any)
+                 if (saleData.amountPaid > 0) {
+                     await addRecord('transactions', {
+                        date: saleData.date,
+                        type: 'payment_in',
+                        relatedId: customer.id, // Link to customer
+                        description: `Payment from ${customer.name} for Sale ID ${saleId}`,
+                        amount: saleData.amountPaid, // Amount received (positive cash flow)
+                        paymentMethod: saleData.paymentMethod
+                     });
+                 }
+            }
+            console.log(`Added ${sampleSales.length} sample sales.`);
+
+
+             // --- Add Sample Purchases (Aim for around 5-10 purchases) ---
+             const samplePurchases = [
+                 { supplierIndex: 0, date: '2023-10-01', items: [{ productIndex: 0, quantity: 5, price: 48000 }, { productIndex: 1, quantity: 10, price: 24000 }], paidRatio: 1 },
+                 { supplierIndex: 1, date: '2023-10-05', items: [{ productIndex: 2, quantity: 20, price: 1400 }, { productIndex: 3, quantity: 30, price: 750 }], paidRatio: 0.7 }, // Partially paid
+                 { supplierIndex: 0, date: '2023-10-10', items: [{ productIndex: 4, quantity: 8, price: 1900 }], paidRatio: 1 },
+                 { supplierIndex: 2, date: '2023-10-15', items: [{ productIndex: 5, quantity: 15, price: 450 }, { productIndex: 6, quantity: 3, price: 17500 }], paidRatio: 0.5 }, // Partially paid
+                 { supplierIndex: 1, date: '2023-10-20', items: [{ productIndex: 7, quantity: 10, price: 950 }], paidRatio: 1 },
+             ];
+
+             for (const purchase of samplePurchases) {
+                 const supplier = addedSuppliers[purchase.supplierIndex];
+                 const purchaseDate = new Date(purchase.date).getTime();
+
+                 let totalAmount = 0;
+                 const purchaseItems = [];
+                 const stockUpdates = []; // Collect stock updates
+
+                 for (const item of purchase.items) {
+                     const product = addedProducts[item.productIndex];
+                     const itemTotal = item.quantity * item.price;
+                     totalAmount += itemTotal;
+                     purchaseItems.push({
+                         productId: product.id,
+                         quantity: item.quantity,
+                         price: item.price,
+                         total: itemTotal
+                     });
+
+                      // Prepare stock update
+                     stockUpdates.push({ productId: product.id, quantity: item.quantity });
+                 }
+
+                 const amountPaid = totalAmount * purchase.paidRatio;
+                 const balance = totalAmount - amountPaid;
+
+                 const purchaseData = {
+                     date: purchaseDate,
+                     supplierId: supplier.id,
+                     totalAmount: totalAmount,
+                     amountPaid: amountPaid,
+                     balance: balance,
+                     paymentMethod: purchase.paidRatio === 1 ? 'Bank Transfer' : 'Credit', // Simple method
+                     items: purchaseItems
+                 };
+
+                 // Add Purchase Record
+                 const purchaseId = await addRecord('purchases', purchaseData);
+
+                 // Update Product Stock
+                 for (const update of stockUpdates) {
+                      const product = await getRecord('products', update.productId);
+                      if (product) {
+                          product.currentStock += update.quantity;
+                          await updateRecord('products', product);
+                      }
+                 }
+
+                 // Update Supplier Balance
+                 supplier.currentBalance += balance; // Positive balance means we owe
+                 await updateRecord('suppliers', supplier);
+
+
+                  // Add Transaction for Purchase event
+                  await addRecord('transactions', {
+                      date: purchaseData.date,
+                      type: 'purchase',
+                      relatedId: purchaseId,
+                      description: `Purchase from ${supplier.name}`,
+                      amount: -purchaseData.totalAmount, // Total purchase value (negative in general ledger)
+                      // supplierBalanceEffect: purchaseData.balance // Store balance effect
+                  });
+
+                  // Add Transaction for Payment Made (if any)
+                  if (purchaseData.amountPaid > 0) {
+                      await addRecord('transactions', {
+                         date: purchaseData.date,
+                         type: 'payment_out',
+                         relatedId: supplier.id, // Link to supplier
+                         description: `Payment to ${supplier.name} for Purchase ID ${purchaseId}`,
+                         amount: -purchaseData.amountPaid, // Amount paid (negative cash flow)
+                         paymentMethod: purchaseData.paymentMethod
+                      });
+                  }
+             }
+              console.log(`Added ${samplePurchases.length} sample purchases.`);
+
+
+            console.log('Sample data addition complete.');
+             // No need to manually refresh lists/dashboard here, the initial navigateTo('dashboardSection')
+             // after this function finishes will handle the first refresh.
+        }
+
+
+    </script>
+</body>
+</html>
